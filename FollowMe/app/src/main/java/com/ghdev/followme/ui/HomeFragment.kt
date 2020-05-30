@@ -14,6 +14,8 @@ import com.ghdev.followme.data.test.PlaceInfo
 import kotlinx.android.synthetic.main.fragment_home.*
 
 
+/*create gahui*/
+
 class HomeFragment : Fragment() {
 
     lateinit var hotPlaceRecyclerViewAdapter: HotPlaceRecyclerViewAdapter
