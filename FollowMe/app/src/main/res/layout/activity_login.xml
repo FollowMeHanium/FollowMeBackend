@@ -148,7 +148,6 @@
 
         <!--카카오톡 로그인 이미지 대체-->
         <RelativeLayout
-
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
