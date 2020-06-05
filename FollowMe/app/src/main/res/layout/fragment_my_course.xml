@@ -11,7 +11,6 @@
         android:layout_height="match_parent">
 
         <!--Toolbar-->
-        <!-- ##constraint 문서 다시 읽어봐야할듯!! -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_toolbar_mycourse"
             android:layout_width="match_parent"
@@ -39,8 +38,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!--달력 넣어야함.............ㅠㅠㅠㅠ 유가희 화이팅!!-->
-
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -48,6 +45,49 @@
             app:layout_constraintTop_toBottomOf="@+id/cl_toolbar_mycourse"
             android:background="@color/colorMain" />
 
+        <!--text랑 calendar 이미지-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_calendar_mycourse_frag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cl_toolbar_mycourse">
+
+            <TextView
+                android:id="@+id/tv_ymd_course_frag"
+                android:layout_width="71dp"
+                android:layout_height="21dp"
+                android:text="2020년 6월"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/img_calender_course_frag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/frame"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tv_ymd_course_frag"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--Calendar-->
+        <devs.mulham.horizontalcalendar.HorizontalCalendarView
+            android:id="@+id/cv_calendar_my_course_frag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="12dp"
+            android:background="@color/colorWhite"
+            app:textColorSelected="@color/colorMain"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cl_calendar_mycourse_frag"
+            />
 
         <TextView
             android:id="@+id/tv_mylikecourse"
@@ -56,12 +96,12 @@
             android:layout_marginTop="12dp"
             android:layout_marginStart="12dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cl_toolbar_mycourse"
+            app:layout_constraintTop_toBottomOf="@+id/cv_calendar_my_course_frag"
             android:text="내가 찜한 코스 ▼"
             />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_mycourse_fragment"
+            android:id="@+id/rv_my_love_course"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
