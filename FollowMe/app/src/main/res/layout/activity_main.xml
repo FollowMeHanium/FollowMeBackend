@@ -10,7 +10,7 @@
 
         <variable
             name="viewModel"
-            type="com.ghdev.followme.ui.MainViewModel" />
+            type="com.ghdev.followme.viewmodel.MainViewModel" />
     </data>
 
 

@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.ImageView
 import com.ghdev.followme.R
 import com.ghdev.followme.ui.base.BasePagerAdapter
+import com.ghdev.followme.ui.coursereco.CourseRecommendFragment
 import com.ghdev.followme.ui.mycourse.MyCourseFragment
 import com.ghdev.followme.ui.mypage.MypageFragment
 import kotlinx.android.synthetic.main.activity_main.*

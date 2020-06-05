@@ -6,51 +6,95 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.ghdev.followme.R
+import com.ghdev.followme.data.test.CourseData
+import com.ghdev.followme.data.test.Place
+import com.ghdev.followme.ui.CourseRecyclerViewAdapter
+import devs.mulham.horizontalcalendar.HorizontalCalendar
+import devs.mulham.horizontalcalendar.HorizontalCalendarView
+import devs.mulham.horizontalcalendar.utils.HorizontalCalendarListener
+import kotlinx.android.synthetic.main.fragment_my_course.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MyCourseFragment : Fragment() {
-    //recyclerview MVVM 구현 방법 알아보기
 
-
-    //일단, fragment의 ui를 짭시다..!
-    //그 후, 데이터가 바뀌면서 UI에 영향을 주는 것들에 대해 생각해보기
-    //databinding 및 viewmodel에 적용
-    //fragment와 viewmodel이어주기
-
-
+    lateinit var courseRecyclerViewAdapter: CourseRecyclerViewAdapter
     private val viewModel : MyCourseViewModel by viewModels()
+    lateinit var rootView : View
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? { // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_my_course, container, false)
+
+        rootView = inflater.inflate(R.layout.fragment_my_course, container, false)
+        
+        return rootView
     }
 
-    companion object {
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
 
-        private const val ARG_PARAM1 = "param1"
-        private const val ARG_PARAM2 = "param2"
+        setRecyclerView()
+        setCalendar()
+    }
+
+    private fun setCalendar() {
+        val startDate: Calendar = Calendar.getInstance()
+        startDate.add(Calendar.MONTH, -1)
+
+        val endDate: Calendar = Calendar.getInstance()
+        endDate.add(Calendar.MONTH, 1)
+
+        var  horizontalCalendar = HorizontalCalendar.Builder(rootView, R.id.cv_calendar_my_course_frag)
+            .range(startDate, endDate)
+            .datesNumberOnScreen(7)
+            .build()
 
 
+        horizontalCalendar.calendarListener = object : HorizontalCalendarListener() {
+            override fun onDateSelected(date: Calendar?, position: Int) {
 
+            }
 
-        fun newInstance(param1: String?, param2: String?): MyCourseFragment {
-            val fragment = MyCourseFragment()
-            val args = Bundle()
-            args.putString(ARG_PARAM1, param1)
-            args.putString(ARG_PARAM2, param2)
-            fragment.arguments = args
-            return fragment
+            override fun onCalendarScroll(calendarView: HorizontalCalendarView, dx: Int, dy: Int) {
+
+            }
+
+            override fun onDateLongClicked(date: Calendar?, position: Int): Boolean {
+                return true
+            }
         }
+
     }
+
+    private fun setRecyclerView() {
+        //코스
+        var courseDataList : ArrayList<CourseData> = ArrayList()
+
+        var place : ArrayList<Place>  = ArrayList()
+        place.add(Place("갬성"))
+        place.add(Place("소울커피"))
+        place.add(Place("공차"))
+
+        courseDataList.add(CourseData("2020.01.04", 5, place,"나만의 힙한 장소"))
+        courseDataList.add(CourseData("2020.01.04", 3, place,"나만의 힙한 장소"))
+        courseDataList.add(CourseData("2020.01.04", 2, place, "나만의 힙한 장소"))
+        courseDataList.add(CourseData("2020.01.04", 1, place, "나만의 힙한 장소"))
+
+        courseRecyclerViewAdapter = CourseRecyclerViewAdapter(courseDataList)
+        rv_my_love_course.adapter = courseRecyclerViewAdapter
+        rv_my_love_course.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+
+    }
+
+
 }
