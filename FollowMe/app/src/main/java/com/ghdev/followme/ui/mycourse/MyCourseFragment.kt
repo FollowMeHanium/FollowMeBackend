@@ -36,7 +36,7 @@ class MyCourseFragment : Fragment() {
     ): View? { // Inflate the layout for this fragment
 
         rootView = inflater.inflate(R.layout.fragment_my_course, container, false)
-        
+
         return rootView
     }
 
@@ -48,6 +48,10 @@ class MyCourseFragment : Fragment() {
     }
 
     private fun setCalendar() {
+
+        //custom Calendar
+        //https://github.com/Mulham-Raee/Horizontal-Calendar
+
         val startDate: Calendar = Calendar.getInstance()
         startDate.add(Calendar.MONTH, -1)
 
@@ -57,7 +61,11 @@ class MyCourseFragment : Fragment() {
         var  horizontalCalendar = HorizontalCalendar.Builder(rootView, R.id.cv_calendar_my_course_frag)
             .range(startDate, endDate)
             .datesNumberOnScreen(7)
+            /*.configure()
+                .showTopText(false)
+            .end()*/
             .build()
+
 
 
         horizontalCalendar.calendarListener = object : HorizontalCalendarListener() {

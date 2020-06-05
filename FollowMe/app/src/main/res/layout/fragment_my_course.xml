@@ -59,7 +59,7 @@
                 android:id="@+id/tv_ymd_course_frag"
                 android:layout_width="71dp"
                 android:layout_height="21dp"
-                android:text="2020년 4월"
+                android:text="2020년 6월"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -80,6 +80,7 @@
             android:id="@+id/cv_calendar_my_course_frag"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
             android:layout_marginTop="12dp"
             android:background="@color/colorWhite"
             app:textColorSelected="@color/colorMain"
