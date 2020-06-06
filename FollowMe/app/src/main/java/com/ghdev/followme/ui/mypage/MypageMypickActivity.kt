@@ -57,6 +57,7 @@ class MypageMypickActivity : AppCompatActivity(), View.OnClickListener{
         rv_mypick.layoutManager = GridLayoutManager(this, 2)
 
 
+        //hello?
 
 
 
