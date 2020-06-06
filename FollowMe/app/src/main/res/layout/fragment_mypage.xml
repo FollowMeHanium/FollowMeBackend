@@ -63,7 +63,7 @@
                 android:layout_height="16dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="5dp"
-                android:src="@drawable/ic_convers_mypage"/>
+                android:src="@drawable/chevron_right"/>
             
         </LinearLayout>
             <TextView
@@ -89,7 +89,7 @@
             >
 
             <LinearLayout
-                android:id="@+id/btn_my_pick_mypage"
+                android:id="@+id/btn_mypage_goto_mypick"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -99,7 +99,7 @@
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/ic_favorite_mypage"
+                    android:src="@drawable/favorite"
                     android:layout_marginLeft="35dp"
                     android:layout_marginTop="23dp"/>
 
@@ -113,7 +113,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/btn_my_setting_mypage"
+                android:id="@+id/btn_mypage_goto_myset"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -122,7 +122,7 @@
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/ic_my_circle_mypage"
+                    android:src="@drawable/account_circle"
                     android:layout_marginLeft="35dp"
                     android:layout_marginTop="23dp"
                     />
@@ -165,14 +165,16 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_convers_mypage"
+                android:src="@drawable/chevron_right"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="10dp"/>
         </RelativeLayout>
-        <ImageView
+        <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#4c000000"/>
+            android:background="#4c000000"
+            android:layout_marginLeft="11dp"
+            android:layout_marginRight="11dp"/>
 
         <RelativeLayout
             android:id="@+id/btn_mypage_version"
@@ -192,14 +194,16 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_convers_mypage"
+                android:src="@drawable/chevron_right"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="10dp"/>
         </RelativeLayout>
-        <ImageView
+        <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#4c000000"/>
+            android:background="#4c000000"
+            android:layout_marginLeft="11dp"
+            android:layout_marginRight="11dp"/>
 
         <RelativeLayout
             android:id="@+id/btn_mypage_request"
@@ -219,16 +223,17 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_convers_mypage"
+                android:src="@drawable/chevron_right"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="10dp"/>
         </RelativeLayout>
 
-
-        <ImageView
+        <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#4c000000"/>
+            android:background="#4c000000"
+            android:layout_marginLeft="11dp"
+            android:layout_marginRight="11dp"/>
 
         <RelativeLayout
             android:id="@+id/btn_mypage_question"
@@ -248,18 +253,13 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_convers_mypage"
+                android:src="@drawable/chevron_right"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="10dp"/>
         </RelativeLayout>
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_gogo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="BUTTON"/>
 
 
 

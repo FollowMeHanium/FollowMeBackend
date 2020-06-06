@@ -31,7 +31,8 @@
             android:id="@+id/tablayout"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="#ff6f61"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

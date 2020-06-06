@@ -12,8 +12,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.mypage.MypageMysetting"></activity>
-        <activity android:name=".ui.mypage.MypageMypick" />
+        <activity android:name=".ui.mypage.MypageMysettingActivity"></activity>
+        <activity android:name=".ui.mypage.MypageMypickActivity" />
         <activity android:name=".ui.SignUpActivity" />
         <activity android:name=".ui.MainActivity" />
         <activity android:name=".ui.LoginActivity">

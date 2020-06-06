@@ -5,8 +5,11 @@
     android:layout_width="150dp"
     android:layout_height="200dp"
     android:layout_marginEnd="16dp"
+    android:layout_marginTop = "10dp"
     android:background="@drawable/login_edittext_round_box"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
 
     <ImageView
         android:id="@+id/img_hot_place_item"
@@ -19,6 +22,17 @@
         android:background="@color/colorBlack"
         />
 
+    <ImageView
+        android:id="@+id/btn_mypick_editmode_unchecked"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:src="@drawable/mypick_unchecked"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginLeft="11dp"
+        android:layout_marginTop="10dp"
+        android:visibility="gone"/>
+
     <TextView
         android:id="@+id/tv_place_name_item"
         android:layout_width="wrap_content"
@@ -27,9 +41,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/img_hot_place_item"
         android:layout_marginTop="8dp"
-        android:textSize="14sp"
+        android:textSize="12sp"
         android:text="카페 포제"
+        android:textColor="#000000"
+        android:textStyle="bold"
         />
+
+    <RatingBar
+        android:id="@+id/rb_star_hotplace_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="?android:attr/ratingBarStyleSmall"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_place_name_item"/>
 
     <TextView
         android:id="@+id/tv_place_address_item"
@@ -37,13 +62,21 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_place_name_item"
+        app:layout_constraintTop_toBottomOf="@+id/rb_star_hotplace_item"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginTop="4dp"
-        android:textSize="12sp"
+        android:textSize="9sp"
         android:text="서울 성동구 연무장9길 7"
         />
 
+    <ImageView
+        android:id="@+id/cl_hot_place_container_checked"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        android:background="@drawable/mypick_checked_item"
+        app:layout_constraintStart_toStartOf="@id/cl_hot_place_container"
+        app:layout_constraintTop_toTopOf="@id/cl_hot_place_container"
+        app:layout_constraintEnd_toEndOf="@id/cl_hot_place_container"
+        android:visibility="gone"/>
 
 
 

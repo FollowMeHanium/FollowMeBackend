@@ -25,7 +25,7 @@
             android:layout_centerHorizontal="true"
             android:layout_width="89dp"
             android:layout_height="92dp"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="90dp"
             android:src="@drawable/logo_followme_img"
             />
     <ImageView
@@ -33,7 +33,7 @@
         android:layout_width="118dp"
         android:layout_height="55dp"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/logo_followme_text"
+        android:src="@drawable/follow_me"
         android:layout_below="@id/tv_title_login_img"/>
 
     <!--editText-->
@@ -126,7 +126,7 @@
             android:layout_width="match_parent"
             android:layout_height="42dp"
             android:layout_marginTop="16dp"
-            android:background="@color/colorMain"
+            android:background="@drawable/signup_button_box"
             android:onClick="@{loginviewmodel::onLoginClicked}">
 
             <TextView
@@ -155,7 +155,7 @@
 
            <com.kakao.usermgmt.LoginButton
                android:id="@+id/btn_kakao_login_act"
-               android:layout_width="wrap_content"
+               android:layout_width="match_parent"
                android:layout_height="wrap_content"
                />
 
@@ -175,7 +175,7 @@
         android:orientation="horizontal"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="25dp"
+        android:layout_marginBottom="20dp"
         android:layout_marginEnd="15dp"
         >
 

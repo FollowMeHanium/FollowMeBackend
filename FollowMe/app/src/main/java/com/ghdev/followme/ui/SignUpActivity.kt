@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import com.ghdev.followme.R
 import com.ghdev.followme.data.PostSignUpResponse
 import com.ghdev.followme.repo.ApplicationController
@@ -18,8 +20,13 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
 
 class SignUpActivity : AppCompatActivity(), View.OnClickListener {
+
+    var year_arr = ArrayList<String>()
+    var month_arr = ArrayList<String>()
+    var date_arr = ArrayList<String>()
 
     val networkService: NetworkService by lazy {
         ApplicationController.instance.networkService
@@ -70,6 +77,7 @@ class SignUpActivity : AppCompatActivity(), View.OnClickListener {
         rl_signup_act.setOnClickListener(this)
         btn_agree_sign_id_set_act.setOnClickListener(this)
 
+
     }
 
 
@@ -111,8 +119,8 @@ class SignUpActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
         })
-
+    }
 
     }
 
-}
+

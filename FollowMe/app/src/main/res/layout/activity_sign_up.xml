@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
@@ -26,11 +28,12 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
             android:text="@string/signup_signup"
-            android:textColor="@color/colorBlack"
+            android:textColor="#000000"
             android:textSize="22sp" />
-
-
     </RelativeLayout>
+
+
+
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -68,18 +71,17 @@
             android:layout_height="match_parent"
             android:background="@drawable/login_edittext_round_box">
 
-                <EditText
-                    android:id="@+id/et_id_sign_up_act"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_centerVertical="true"
-                    android:paddingStart="16dp"
-                    android:background="@null"
-                    android:hint="@string/id_signup"
-                    android:inputType="textEmailAddress"
-                    android:textColorHint="#cecece"
-                    android:textSize="13sp"
-                    />
+            <EditText
+                android:id="@+id/et_id_sign_up_act"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:background="@null"
+                android:hint="@string/id_signup"
+                android:inputType="textEmailAddress"
+                android:paddingStart="16dp"
+                android:textColorHint="#cecece"
+                android:textSize="13sp" />
 
         </LinearLayout>
 
@@ -100,7 +102,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="20dp"
             android:text="비밀번호"
             android:textSize="12sp"
             android:textStyle="bold"
@@ -133,7 +135,7 @@
             android:layout_height="wrap_content"
             android:text="비밀번호 확인"
             android:textSize="12sp"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="20dp"
             android:textStyle="bold"
             android:textColor="#000000"
             />
@@ -163,7 +165,7 @@
             android:layout_height="wrap_content"
             android:text="@string/nickname_signup"
             android:textSize="12sp"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="20dp"
             android:textStyle="bold"
             android:textColor="#000000"
             />
@@ -193,7 +195,7 @@
             android:layout_height="wrap_content"
             android:text="성별"
             android:textSize="12sp"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="20dp"
             android:textStyle="bold"
             android:textColor="#000000"
             />
@@ -245,7 +247,7 @@
             android:layout_height="wrap_content"
             android:text="휴대전화"
             android:textSize="12sp"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="20dp"
             android:textStyle="bold"
             android:textColor="#000000"
             />
@@ -273,39 +275,48 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="생년월일일"
+            android:text="@string/birth_signup"
            android:textSize="12sp"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="20dp"
             android:textStyle="bold"
             android:textColor="#000000"
             />
 
         <!--생년월일-->
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="42dp"
-            android:orientation="horizontal">
+            android:layout_height="42dp">
 
-            <Spinner
-                android:id="@+id/sp_birth_year_sign_up_act"
-                android:layout_width="106dp"
+            <RelativeLayout
+                android:layout_width="220dp"
                 android:layout_height="match_parent"
-                android:layout_marginStart="16dp"
-                />
-            <Spinner
-                android:id="@+id/sp_birth_month_sign_up_act"
-                android:layout_width="79dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="16dp"
-                />
-            <Spinner
-                android:id="@+id/sp_birth_day_sign_up_act"
-                android:layout_width="79dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="16dp"
-                />
+                android:background="@drawable/login_edittext_round_box"
+                android:paddingStart="16dp">
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/tv_signup_birth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:background="@null"
+                    android:hint="@string/birth_signup_tv"
+                    android:textColorHint="#cecece"
+                    android:textSize="13sp" />
+
+            </RelativeLayout>
+
+            <Button
+                android:layout_width="80dp"
+                android:layout_height="30dp"
+                android:text="입력하기"
+                android:background="@drawable/signup_button_box"
+                android:textColor="#ffffff"
+                android:textSize="12sp"
+                android:textStyle = "bold"
+                android:layout_marginStart="230dp"
+                android:layout_marginTop = "3dp"/>
+
+        </RelativeLayout>
 
         <Button
             android:id="@+id/btn_agree_sign_id_set_act"
@@ -318,12 +329,8 @@
             android:textColor="#ffffff"
             android:textStyle="bold"
             android:background="@drawable/signup_button_box"/>
-
     </LinearLayout>
 
     </ScrollView>
-
-
-
 
 </RelativeLayout>
