@@ -16,7 +16,7 @@ class HotPlaceRecyclerViewAdapter (val dataList: ArrayList<PlaceInfo>)
     : RecyclerView.Adapter<HotPlaceRecyclerViewAdapter.Holder>() {
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): HotPlaceRecyclerViewAdapter.Holder {
-
+                
         val view: View = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_hot_place, viewGroup, false)
 
         return Holder(view)
@@ -36,6 +36,7 @@ class HotPlaceRecyclerViewAdapter (val dataList: ArrayList<PlaceInfo>)
 
         holder.container.setOnClickListener {
             //##detailview로 갈 수 있도록 함
+
         }
     }
 
