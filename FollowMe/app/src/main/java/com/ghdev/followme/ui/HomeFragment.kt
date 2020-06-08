@@ -23,7 +23,7 @@ class HomeFragment : Fragment() {
     lateinit var courseRecyclerViewAdapter: CourseRecyclerViewAdapter
 
     companion object{
-        val PLACE_INFO = "place_info_home"
+        val PLACE_INFO = "place_info"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

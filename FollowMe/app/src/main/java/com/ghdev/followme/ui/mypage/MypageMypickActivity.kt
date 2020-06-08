@@ -20,7 +20,7 @@ import org.jetbrains.anko.verticalLayout
 class MypageMypickActivity : AppCompatActivity(), View.OnClickListener{
 
     companion object{
-        val PLACE_INFO = "place_info_mypick"
+        val PLACE_INFO = "place_info"
     }
 
     override fun onClick(v: View?) {
