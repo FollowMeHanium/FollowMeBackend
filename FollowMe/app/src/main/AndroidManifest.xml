@@ -12,16 +12,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.mypage.MypageMysettingActivity"></activity>
+        <activity android:name=".ui.PlaceDetailActivity"></activity>
+        <activity android:name=".ui.mypage.MypageMysettingActivity" />
         <activity android:name=".ui.mypage.MypageMypickActivity" />
         <activity android:name=".ui.SignUpActivity" />
         <activity android:name=".ui.MainActivity" />
         <activity android:name=".ui.LoginActivity">
             <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN" />
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name="com.kakao.auth.authorization.authcode.KakaoWebViewActivity"

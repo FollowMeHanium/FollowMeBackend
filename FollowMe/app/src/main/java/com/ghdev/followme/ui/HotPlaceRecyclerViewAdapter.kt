@@ -12,7 +12,9 @@ import com.bumptech.glide.Glide
 import com.ghdev.followme.R
 import com.ghdev.followme.data.test.PlaceInfo
 
-class HotPlaceRecyclerViewAdapter (val dataList: ArrayList<PlaceInfo>)
+class HotPlaceRecyclerViewAdapter (
+    val dataList: ArrayList<PlaceInfo>,
+    val dataListClick: (PlaceInfo) -> Unit)
     : RecyclerView.Adapter<HotPlaceRecyclerViewAdapter.Holder>() {
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): HotPlaceRecyclerViewAdapter.Holder {
@@ -26,8 +28,10 @@ class HotPlaceRecyclerViewAdapter (val dataList: ArrayList<PlaceInfo>)
 
 
     override fun onBindViewHolder(holder: HotPlaceRecyclerViewAdapter.Holder, position: Int) {
-        holder.placename.text = dataList[position].name
-        holder.address.text = dataList[position].address
+        val info : PlaceInfo = dataList[position]
+
+        holder.placename.text = info.name
+        holder.address.text = info.address
 
         /*//glide
         Glide.with(ctx).load(dataList[position].img)
@@ -36,6 +40,8 @@ class HotPlaceRecyclerViewAdapter (val dataList: ArrayList<PlaceInfo>)
 
         holder.container.setOnClickListener {
             //##detailview로 갈 수 있도록 함
+            dataListClick(info)
+
         }
     }
 
