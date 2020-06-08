@@ -1,5 +1,6 @@
 package com.ghdev.followme.ui
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -20,6 +21,10 @@ class HomeFragment : Fragment() {
 
     lateinit var hotPlaceRecyclerViewAdapter: HotPlaceRecyclerViewAdapter
     lateinit var courseRecyclerViewAdapter: CourseRecyclerViewAdapter
+
+    companion object{
+        val PLACE_INFO = "place_info_home"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +55,11 @@ class HomeFragment : Fragment() {
         dataList.add(PlaceInfo("", "하", "서울시 노원구 공릉동 131313"))
         dataList.add(PlaceInfo("", "하", "서울시 노원구 공릉동 131313"))
 
-        hotPlaceRecyclerViewAdapter = HotPlaceRecyclerViewAdapter(dataList)
+        hotPlaceRecyclerViewAdapter = HotPlaceRecyclerViewAdapter(dataList){PlaceInfo ->
+            val intent = Intent(context, PlaceDetailActivity::class.java)
+            intent.putExtra(PLACE_INFO, PlaceInfo)
+            startActivity(intent)
+        }
         rv_hot_place_home.adapter = hotPlaceRecyclerViewAdapter
         rv_hot_place_home.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
@@ -63,7 +72,11 @@ class HomeFragment : Fragment() {
         restaurantList.add(PlaceInfo("dk", "맛집", "서울시 노원구 공릉동 131313"))
         restaurantList.add(PlaceInfo("dk", "맛집", "서울시 노원구 공릉동 131313"))
 
-        hotPlaceRecyclerViewAdapter = HotPlaceRecyclerViewAdapter(restaurantList)
+        hotPlaceRecyclerViewAdapter = HotPlaceRecyclerViewAdapter(restaurantList){PlaceInfo->
+            val intent = Intent(context, PlaceDetailActivity::class.java)
+            intent.putExtra(PLACE_INFO, PlaceInfo)
+            startActivity(intent)
+        }
         rv_restaurant_today.adapter = hotPlaceRecyclerViewAdapter
         rv_restaurant_today.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
