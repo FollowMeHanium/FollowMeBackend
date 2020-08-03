@@ -1,7 +1,5 @@
 # Restaurant_Crawler
 - 맛집 사이트 크롤러 (다이닝코드)
-- 참조 : https://velog.io/@seokzin/series/%EC%9B%B9%ED%81%AC%EB%A1%A4%EB%A7%81
-
 
 ## v 1.01
 - List_Crawler (Prototype) 구현
