@@ -8,15 +8,14 @@ const { Info, InfoLike } = require('../models');
 
 const jwt_util = require('../js/jwt_util');
 
-
 //SHOP INFO CREATE
 router.post('/', ShopController.createShop);
 
 //SHOP LIST READ
-router.get('/list', ShopController.readShopL1ist);
+router.get('/list', ShopController.readShopList);
 
-//SHOP MY DIP LIST READ
-router.get('/my/dip', ShopController.readShopL1ist);
+//SHOP RECOMMEND LIST READ
+router.get('/recommend', ShopController.getRecommend);
 
 //SHOP INFO READ
 router.get('/one', ShopController.readShop);
@@ -32,6 +31,15 @@ router.post('/like', ShopController.likeShop);
 
 //좋아요 취소
 router.post('/dislike', ShopController.dislikeShop); 
+
+//찜 리스트
+router.get('/dip', ShopController.readDipList);
+
+//찜
+router.post('/dip', ShopController.dipShop);
+
+//찜 취소
+router.post('/undip', ShopController.undipShop);
 
 //SHOP REVIEW CREATE
 router.post('/review', ShopController.createReview);
