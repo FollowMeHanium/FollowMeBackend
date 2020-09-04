@@ -80,10 +80,10 @@ exports.readCourse = (req, res, next) => {
                 course_likes.id AS liked,
                 infos.id AS info_id, infos.shopname AS shopname, infos.address AS address,
                 infos.grade_avg AS info_grade_avg, infos.latitude AS latitude, infos.longitude AS longitude
-            FROM hanium.courses 
-            LEFT OUTER JOIN (hanium.course_likes)
+            FROM followme.courses 
+            LEFT OUTER JOIN (followme.course_likes)
             ON ( courses.id = course_likes.course_id )
-            LEFT OUTER JOIN (hanium.infos)
+            LEFT OUTER JOIN (followme.infos)
             ON ( courses.course_info1 = infos.id OR courses.course_info2 = infos.id OR courses.course_info3 = infos.id )
             WHERE ( courses.id = :course_id )`;
 
@@ -259,8 +259,8 @@ exports.readMyCourse = (req, res, next) => {
             courses.id, courses.user_id AS user_id, courses.title, courses.dday, courses.grade_avg, 
             courses.course_info1, courses.shopname1, courses.course_info2, courses.shopname2, courses.course_info3, courses.shopname3, 
             course_shares.course_id AS course_id, course_shares.shared_user_id AS shared_user_id 
-        FROM hanium.courses 
-        LEFT OUTER JOIN (hanium.course_shares)
+        FROM followme.courses 
+        LEFT OUTER JOIN (followme.course_shares)
         ON courses.id = course_shares.course_id 
         WHERE (user_id = :user_id OR shared_user_id = :user_id ) 
         GROUP BY courses.id`;
@@ -379,8 +379,8 @@ exports.updateCourse = (req, res, next) => {
             courses.id, courses.user_id AS user_id, courses.title, courses.dday, courses.grade_avg, 
             courses.course_info1, courses.shopname1, courses.course_info2, courses.shopname2, courses.course_info3, courses.shopname3, 
             course_shares.course_id AS course_id, course_shares.shared_user_id AS shared_user_id 
-        FROM hanium.courses 
-        LEFT OUTER JOIN (hanium.course_shares)
+        FROM followme.courses 
+        LEFT OUTER JOIN (followme.course_shares)
         ON courses.id = course_shares.course_id 
         WHERE (user_id = :user_id OR shared_user_id = :user_id ) 
         GROUP BY courses.id`;
@@ -468,8 +468,8 @@ exports.updateShare = (req, res, next) => {
             courses.id, courses.user_id AS user_id, courses.title, courses.dday, courses.grade_avg, 
             courses.course_info1, courses.shopname1, courses.course_info2, courses.shopname2, courses.course_info3, courses.shopname3, 
             course_shares.course_id AS course_id, course_shares.shared_user_id AS shared_user_id 
-        FROM hanium.courses 
-        LEFT OUTER JOIN (hanium.course_shares)
+        FROM followme.courses 
+        LEFT OUTER JOIN (followme.course_shares)
         ON courses.id = course_shares.course_id 
         WHERE (user_id = :user_id OR shared_user_id = :user_id ) 
         GROUP BY courses.id`;
