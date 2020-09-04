@@ -16,7 +16,7 @@ import java.util.Map;
 public class SearchController {
     private final SearchService searchService;
 
-    @RequestMapping(value="/search",method = {RequestMethod.POST})
+    @PostMapping("/search")
     public JsonNode search(@RequestBody SearchRequestDto searchRequestDto) throws IOException {
         return searchService.SearchDoc(searchRequestDto.getFrom(),searchRequestDto.getQuery());
     }
