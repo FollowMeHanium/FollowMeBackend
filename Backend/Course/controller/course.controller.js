@@ -52,7 +52,7 @@ exports.createCourse = (req, res, next) => {
 
         res.json({
             code: 400,
-            message: "Can't read token (course create)"
+            message: "JWT Token Error (course create)"
         });
 
     }
@@ -97,8 +97,6 @@ exports.readCourse = (req, res, next) => {
         })
 
         .then( courses => {
-            
-            console.log( courses );
 
             if( !courses[0].liked )
                 like = 0;
@@ -114,7 +112,6 @@ exports.readCourse = (req, res, next) => {
                 json.grade_avg = courses[i].info_grade_avg;
                 json.latitude = courses[i].latitude;
                 json.longitude = courses[i].longitude;
-                console.log(i," : ", json);
                 shops.push(json);
             }
 
@@ -134,7 +131,7 @@ exports.readCourse = (req, res, next) => {
 
         res.json({
             code: 400,
-            message: "Can't read token (course read one)"
+            message: "JWT Token Error (course read one)"
         });
 
     }
@@ -145,7 +142,7 @@ exports.readCourseList = (req, res, next) => {
     let token = jwt_util.getAccount(req.headers.authorization);
     let include_array = [], json = {}, outer_where = {};
     let courses = [], info_id_array = [], info_id_set = [], set_index = 0;
-
+    
     if( typeof token !== 'undefined')
     {
         Course.findAll({
@@ -213,22 +210,26 @@ exports.readCourseList = (req, res, next) => {
                 json.longitude = infos[i].longitude;
                 shops.push(json);
             }
-
-            for( i = 0; i < Object.keys(courses).length; i++ )
-            {
-                for( j = 0; j < 3; j++)
+            let getShopsIndex = (set, id) => {
+                return info_id_set.findIndex( val => val == info_id_array[i][j]);
+            }
+            let createCourseShop = async function(courses, info_id_array, index_id_set) {
+                for( i = 0; i < Object.keys(courses).length; i++ )
                 {
-                    if( !info_id_array[i][j] )
+                    for( j = 0; j < 3; j++)
                     {
-                        let index = info_id_set.findIndex( val => val == info_id_array[i][j]);
-                        courses[i].shops.push(shops[index]);
+                        if( info_id_array[i][j] )
+                        {
+                            let index = await getShopsIndex(info_id_set, info_id_array[i][j]);
+                            courses[i].shops.push(shops[index]);
+                        }
                     }
                 }
+                res.json({
+                    courses: courses
+                });
             }
-            res.json({
-                courses: courses,
-                shops: shops
-            });
+            createCourseShop(courses, info_id_array, info_id_set);
         })
         
     }
@@ -237,7 +238,7 @@ exports.readCourseList = (req, res, next) => {
 
         res.json({
             code: 400,
-            message: "Can't read token (course read list)"
+            message: "JWT Token Error (course read list)"
         });
 
     }
@@ -274,7 +275,6 @@ exports.readMyCourse = (req, res, next) => {
 
         .then( course => {
 
-            console.log(course);
             for( i = 0; i < Object.keys(course).length; i++)
             {
                 //course data to response
@@ -341,7 +341,6 @@ exports.readMyCourse = (req, res, next) => {
                     {
                         let index = info_id_set.findIndex( val => val == info_id_array[i][j]);
                         courses[i].shops.push(shops[index]);
-                        console.log("index : ", index);
                     }
                 }
             }
@@ -357,7 +356,7 @@ exports.readMyCourse = (req, res, next) => {
 
         res.json({
             code: 400,
-            message: "Can't read token (course read my list)"
+            message: "JWT Token Error (course read my list)"
         });
 
     }
@@ -408,6 +407,9 @@ exports.updateCourse = (req, res, next) => {
                     shopname2: shopname2,
                     course_info3: shop_id3,
                     shopname3: shopname3
+                },
+                {
+                    where: {id: course_id}
                 })
 
                 .then( updated_course => {
@@ -445,7 +447,7 @@ exports.updateCourse = (req, res, next) => {
 
         res.json({
             code: 400,
-            message: "Can't read token (course update)"
+            message: "JWT Token Error (course update)"
         });
 
     }
@@ -456,8 +458,6 @@ exports.updateShare = (req, res, next) => {
     let { share, course_id, shared_user_id} = req.body;
     let token = jwt_util.getAccount(req.headers.authorization);
 
-    console.log(share, course_id, shared_user_id)
-    CourseShare
     if( typeof token !== 'undefined')
     {
         let user_id = token.user_id;
@@ -483,7 +483,7 @@ exports.updateShare = (req, res, next) => {
         )
 
         .then( course => {
-            console.log(course);
+            
             if( course )
             {
                 if(share == 0) // 비공개 전환
@@ -611,7 +611,7 @@ exports.updateShare = (req, res, next) => {
 
         res.json({
             code: 400,
-            message: "Can't read token (course share update)"
+            message: "JWT Token Error (course share update)"
         });
 
     }
@@ -684,7 +684,7 @@ exports.deleteCourse = (req, res, next) => {
 
         res.json({
             code: 400,
-            message: "Can't read token (course delete)"
+            message: "JWT Token Error (course delete)"
         });
 
     }
@@ -720,7 +720,7 @@ exports.likeCourse = (req, res, next) => {
         })
 
         .then( course_like => {
-            return course.increment(
+            return Course.increment(
                 { likenum: 1 },
                 { where : { id: course_id } }
             );
@@ -734,6 +734,7 @@ exports.likeCourse = (req, res, next) => {
         })
         
         .catch( err => {
+            console.log(err);
             res.json({
                 code: 500,
                 message: "create error (course like)"
@@ -745,7 +746,7 @@ exports.likeCourse = (req, res, next) => {
 
         res.json({
             code: 400,
-            message: "Can't read token (course like)"
+            message: "JWT Token Error (course like)"
         });
 
     }
@@ -756,8 +757,9 @@ exports.dislikeCourse = (req, res, next) => {
     let course_id = req.body.id;
     let token = jwt_util.getAccount(req.headers.authorization);
 
-    if( typeof token !== 'undefined')
+    if( typeof token != 'undefined')
     {
+        if( typeof course_id )
         // 테스트로는 token의 user_id를 받아서 user를 따로 조회 안하도록 만듦 -> 나중에 수정 가능
         CourseLike.findOne({
             where : {
@@ -786,7 +788,7 @@ exports.dislikeCourse = (req, res, next) => {
         })
 
         .then( course_like => {
-            return course.decrement(
+            return Course.decrement(
                 { likenum: 1 },
                 { where : { id: course_id } }
             );
@@ -811,119 +813,7 @@ exports.dislikeCourse = (req, res, next) => {
 
         res.json({
             code: 400,
-            message: "Can't read token (course cancle like)"
-        });
-
-    }
-};
-
-//COURSE Dip
-exports.dipCourse = (req, res, next) => {
-    let course_id = req.body.id;
-    let token = jwt_util.getAccount(req.headers.authorization);
-
-    if( typeof token !== 'undefined')
-    {
-        // 테스트로는 token의 user_id를 받아서 user를 따로 조회 안하도록 만듦 -> 나중에 수정 가능
-        CourseDip.findOne({
-            where : {
-                user_id: token.user_id,
-                course_id: course_id
-            }
-        })
-        .then( course_dip => {
-            if( course_dip )
-            {
-                //이미 찜되어 있으면 reject
-                return new Promise( (resolve, reject) => {
-                    reject(new Error('already dip'));
-                });
-            }
-            return CourseDip.create({
-                user_id: token.user_id,
-                course_id: course_id
-            })
-        })
-
-        .then( result =>{
-            res.json({
-              code: 200,
-              message: "create success (course dip)"
-            });
-        })
-        
-        .catch( err => {
-            res.json({
-                code: 500,
-                message: "create error (course dip)"
-            });
-        });
-    }
-    else
-    {
-
-        res.json({
-            code: 400,
-            message: "Can't read token (course dip)"
-        });
-
-    }
-};
-
-//COURSE DIP CANCLE
-exports.undipCourse = (req, res, next) => {
-    let course_id = req.body.id;
-    let token = jwt_util.getAccount(req.headers.authorization);
-
-    if( typeof token !== 'undefined')
-    {
-        // 테스트로는 token의 user_id를 받아서 user를 따로 조회 안하도록 만듦 -> 나중에 수정 가능
-        CourseDip.findOne({
-            where : {
-                user_id: token.user_id,
-                course_id: course_id
-            }
-        })
-
-        .then( course_dip => {
-
-            if( !course_dip )
-            {
-                return new Promise( (resolve, reject) => {
-                    reject(new Error('no data'));
-                });
-            }
-            else
-            {
-                return CourseDip.destroy({
-                    where : {
-                        user_id: token.user_id,
-                        course_id: course_id
-                    }
-                });
-            }
-        })
-
-        .then( result =>{
-            res.json({
-              code: 200,
-              message: "delete success (course cancle dip)"
-            });
-        })
-        
-        .catch( err => {
-            res.json({
-                code: 500,
-                message: "Can't delete : no data in db already (course cancle dip)"
-            });
-        });
-    }
-    else
-    {
-
-        res.json({
-            code: 400,
-            message: "Can't read token (course cancle dip)"
+            message: "JWT Token Error (course cancle like)"
         });
 
     }
@@ -976,7 +866,7 @@ exports.readReviews = (req, res, next) => {
 
         res.json({
             code: 400,
-            message: "Can't read token (course read reviews)"
+            message: "JWT Token Error (course read reviews)"
         });
 
     }
@@ -1027,7 +917,7 @@ exports.createReview = (req, res, next) => {
 
         res.json({
             code: 400,
-            message: "Can't read token (course review create)"
+            message: "JWT Token Error (course review create)"
         });
 
     }
@@ -1094,7 +984,7 @@ exports.updateReview = (req, res, next) => {
 
         res.json({
             code: 400,
-            message: "Can't read token (course update review)"
+            message: "JWT Token Error (course update review)"
         });
 
     }
@@ -1151,7 +1041,7 @@ exports.deleteReview = (req, res, next) => {
 
         res.json({
             code: 400,
-            message: "Can't read token (course review delete)"
+            message: "JWT Token Error (course review delete)"
         });
 
     }
