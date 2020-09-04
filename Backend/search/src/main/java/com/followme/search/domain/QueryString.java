@@ -9,11 +9,11 @@ import java.util.ArrayList;
 
 @Setter
 @Getter
-public class Field {
+public class QueryString {
     private Object query;
     private String[] fields;
 
-    public Field(String query){
+    public QueryString(String query){
         this.query = query;
         this.fields= new String[]{"menu", "shopname", "introduce", "address"};
     }
