@@ -140,96 +140,29 @@ exports.readCourse = (req, res, next) => {
 //COURSE READ - LIST
 exports.readCourseList = (req, res, next) => {
     let token = jwt_util.getAccount(req.headers.authorization);
-    let include_array = [], json = {}, outer_where = {};
     let courses = [], info_id_array = [], info_id_set = [], set_index = 0;
     
     if( typeof token !== 'undefined')
     {
-        Course.findAll({
-            attributes: { 
-                exclude : ['createdAt', 'updatedAt', 'deletedAt'] 
-            },
-            where: { share: 1 } // 전체공개만 select
-        })
+        let query = `
+        SELECT 
+            courses.id, courses.user_id AS user_id, courses.title, courses.dday, courses.grade_avg, 
+            courses.course_info1, courses.shopname1, courses.course_info2, courses.shopname2, courses.course_info3, courses.shopname3, 
+            DATE_FORMAT(courses.created_at,'%Y-%m-%d') AS created_at, courses.share AS share
+        FROM courses
+        WHERE (courses.share = 1)`;
 
-        .then( course => {
-            for( i = 0; i < Object.keys(course).length; i++)
+        model.sequelize.query(
+            query, 
             {
-                //course data to response
-                let json = {};
-                json.id = course[i].id;
-                json.title = course[i].title;
-                json.dday = course[i].ddat;
-                json.grade_avg = course[i].grade_avg;
-                json.shops = [];
-                courses.push(json);
-
-                // info join 시 마지막으로 건 freign key -> course.course_info3 = info.id 조건을 자동으로 생성해 검색이 제대로 되지 않음.
-                // 때문에 info select을 또 하는데, info를 중복해서 검사하지 않기 위해 id를 배열로 저장하고, 중복을 제거함.
-                let id_array = [];
-                id_array[0] = course[i].course_info1,
-                id_array[1] = course[i].course_info2,
-                id_array[2] = course[i].course_info3,
-                info_id_set.push(course[i].course_info1);
-                info_id_set.push(course[i].course_info2);
-                info_id_set.push(course[i].course_info3);
-                info_id_array[i] = id_array
+                type: QueryTypes.SELECT
             }
+        )
 
-            //ES6의 SET을 이용해 중복을 제거 후 정렬.
-            info_id_set = Array.from(new Set(info_id_set)); 
-            //null값 검색 시 제거
-            let null_index = info_id_set.findIndex( val => val == 'null' || val == 'undefined');
-            if(null_index != -1)
-                info_id_set.splice(null_index, 1);
-            //sort
-            info_id_array.sort();
-
-            return Info.findAll({
-                where: {
-                    id: {
-                        [Op.or]: info_id_set
-                    }
-                }
+        .then( courses => {
+            res.json({
+                courses: courses
             });
-        })
-
-        .then( infos => {
-
-            let shopnum = Object.keys(infos).length;
-            let shops = [];
-
-            for( i = 0; i < shopnum; i++ )
-            {
-                let json = {};
-                json.id = infos[i].id;
-                json.shopname = infos[i].shopname;
-                json.address = infos[i].address;
-                json.grade_avg = infos[i].grade_avg;
-                json.latitude = infos[i].latitude;
-                json.longitude = infos[i].longitude;
-                shops.push(json);
-            }
-            let getShopsIndex = (set, id) => {
-                return info_id_set.findIndex( val => val == info_id_array[i][j]);
-            }
-            let createCourseShop = async function(courses, info_id_array, index_id_set) {
-                for( i = 0; i < Object.keys(courses).length; i++ )
-                {
-                    for( j = 0; j < 3; j++)
-                    {
-                        if( info_id_array[i][j] )
-                        {
-                            let index = await getShopsIndex(info_id_set, info_id_array[i][j]);
-                            courses[i].shops.push(shops[index]);
-                        }
-                    }
-                }
-                res.json({
-                    courses: courses
-                });
-            }
-            createCourseShop(courses, info_id_array, info_id_set);
         })
         
     }
@@ -247,8 +180,6 @@ exports.readCourseList = (req, res, next) => {
 //MY COURSE READ - LIST
 exports.readMyCourse = (req, res, next) => {
     let token = jwt_util.getAccount(req.headers.authorization);
-    let include_array = [], json = {}, outer_where = {};
-    let courses = [], info_id_array = [], info_id_set = [], set_index = 0;
     let user_id = token.user_id;
 
     if( typeof token !== 'undefined')
@@ -258,7 +189,7 @@ exports.readMyCourse = (req, res, next) => {
         SELECT 
             courses.id, courses.user_id AS user_id, courses.title, courses.dday, courses.grade_avg, 
             courses.course_info1, courses.shopname1, courses.course_info2, courses.shopname2, courses.course_info3, courses.shopname3, 
-            course_shares.course_id AS course_id, course_shares.shared_user_id AS shared_user_id 
+            DATE_FORMAT(courses.created_at,'%Y-%m-%d') AS created_at, COUNT(course_shares.course_id) AS share, course_shares.shared_user_id AS shared_user_id 
         FROM followme.courses 
         LEFT OUTER JOIN (followme.course_shares)
         ON courses.id = course_shares.course_id 
@@ -273,77 +204,7 @@ exports.readMyCourse = (req, res, next) => {
             }
         )
 
-        .then( course => {
-
-            for( i = 0; i < Object.keys(course).length; i++)
-            {
-                //course data to response
-                let json = {};
-                json.id = course[i].id;
-                json.title = course[i].title;
-                json.dday = course[i].ddat;
-                json.grade_avg = course[i].grade_avg;
-                json.share = ( course[i].shared_user_id == user_id ) ? 1 : 0;
-                json.shops = [];
-                courses.push(json);
-
-                // info를 중복해서 검사하지 않기 위해 id를 배열로 저장하고, 중복을 제거함.
-                let id_array = [];
-                id_array[0] = course[i].course_info1,
-                id_array[1] = course[i].course_info2,
-                id_array[2] = course[i].course_info3,
-                info_id_set.push(course[i].course_info1);
-                info_id_set.push(course[i].course_info2);
-                info_id_set.push(course[i].course_info3);
-                info_id_array[i] = id_array
-            }
-
-            //ES6의 SET을 이용해 중복을 제거 후 정렬.
-            info_id_set = Array.from(new Set(info_id_set)); 
-            //null값 검색 시 제거
-            let null_index = info_id_set.findIndex( val => val == null || val == 'undefined');
-            if(null_index != -1)
-                info_id_set.splice(null_index, 1);
-            //sort
-            info_id_array.sort();
-
-            return Info.findAll({
-                where: {
-                    id: {
-                        [Op.or]: info_id_set
-                    }
-                }
-            });
-        })
-
-        .then( infos => {
-
-            let shopnum = Object.keys(infos).length;
-            let shops = [];
-
-            for( i = 0; i < shopnum; i++ )
-            {
-                let json = {};
-                json.id = infos[i].id;
-                json.shopname = infos[i].shopname;
-                json.address = infos[i].address;
-                json.grade_avg = infos[i].grade_avg;
-                json.latitude = infos[i].latitude;
-                json.longitude = infos[i].longitude;
-                shops.push(json);
-            }
-
-            for( i = 0; i < Object.keys(courses).length; i++ )
-            {
-                for( j = 0; j < 3; j++)
-                {
-                    if( info_id_array[i][j] )
-                    {
-                        let index = info_id_set.findIndex( val => val == info_id_array[i][j]);
-                        courses[i].shops.push(shops[index]);
-                    }
-                }
-            }
+        .then( courses => {
 
             res.json({
                 courses: courses

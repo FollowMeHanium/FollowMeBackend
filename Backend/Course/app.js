@@ -9,10 +9,8 @@ const { sequelize } = require('sequelize');
 const models = require("./models/index.js");
 
 const indexRouter = require('./routes/index');
-// var users = require('./routes/users');
-const shopRouter = require('./routes/shop'); // 가게 CRUD
-const shopAutoInput = require('./routes/shopAutoInput'); // 가게 정보 자동 입력
 const courseRouter = require('./routes/course');
+const courseAutoRouter = require('./routes/course_auto_input');
 
 const app = express();
 require('dotenv').config();
@@ -38,6 +36,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/course', courseRouter);
+app.use('/auto', courseAutoRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
