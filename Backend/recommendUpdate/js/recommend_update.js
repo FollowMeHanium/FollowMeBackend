@@ -46,12 +46,12 @@ exports.recommend_update = () => {
         query = `
         SELECT 
         courses.id, courses.title, courses.contents, courses.grade_avg, courses.dday, courses.course_info1, courses.shopname1,
-        courses.course_info2, courses.shopname2, courses.course_info3, courses.shopname3,
+        courses.course_info2, courses.shopname2, courses.course_info3, courses.shopname3, DATE_FORMAT(courses.created_at,'%Y-%m-%d') AS created_at,
         COUNT(course_likes.id) AS likes
         FROM courses
         JOIN course_likes
         ON ( courses.id = course_likes.course_id )
-        WHERE ( DATE(course_likes.created_at) >= :yesterday AND DATE(course_likes.created_at) < :today )
+        WHERE ( courses.share = 1 AND (DATE(course_likes.created_at) >= :yesterday AND DATE(course_likes.created_at) < :today))
         GROUP BY courses.id
         ORDER BY likes DESC
         LIMIT 0, 9;
