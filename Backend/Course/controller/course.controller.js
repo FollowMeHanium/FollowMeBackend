@@ -3,15 +3,22 @@ const { Sequelize, sequelize, Op, QueryTypes} = require('sequelize');
 const { User, Course, CourseLike, CourseReview, CourseShare, Info } = require('../models');
 const model = require('../models');
 const jwt_util = require('../js/jwt_util');
+const fs = require('fs');
+const image_path = env.IMAGE_PATH;
+const image_db_path = env.IMAGE_DB_PATH;
+const image_middle_path = env.IMAGE_MIDDLE_PATH;
+const default_image_name = env.DEFAULT_IMAGE_NAME;
 
 //COURSE CREATE
 exports.createCourse = (req, res, next) => {
 
-    let { title, dday, contents } = req.body;
-
+    let { category, title, contents, dday } = req.body;
     let token = jwt_util.getAccount(req.headers.authorization);
+    let file = req.file;
 
-    if( typeof token !== 'undefined')
+    if(!category) 
+        category = 1;
+    if( typeof token != 'undefined')
     {
 
         User.findOne({
@@ -19,7 +26,8 @@ exports.createCourse = (req, res, next) => {
         })
         
         .then( user => {
-
+            let main_photo = null;
+    
             Course.create({
                 user_id: user.id,
                 user_nickname: user.nickname,
@@ -30,20 +38,49 @@ exports.createCourse = (req, res, next) => {
             })
             
             .then( course => {
+                if(file)
+                {
+                    let file = req.file;
+                    oldFilename = image_path + "default_main_" + file.originalname;
+                    newFilename = image_path + course.id + image_middle_path + file.originalname;
 
-                res.json({
-                    code: 200,
-                    message: "Create Success (course create)"
-                });
+                    fs.rename( oldFilename , newFilename, 
+                        function (err) { 
+                            if (err) 
+                            {
+                                res.json({
+                                    message: "file update error (course create)"
+                                });
+                                throw err; 
+                            }
+                        }
+                    );
 
+                    return Course.update(
+                        { main_photo: image_db_path + course.id + image_middle_path + file.originalname },
+                        { where : { id: course.id }}
+                    ).then( upt => {
+                        res.json({
+                            code: 200,
+                            message: "Create Success (course create)"
+                        });
+                    });
+                }
+                else
+                {
+                    res.json({
+                        code: 200,
+                        message: "Create Success (course create)"
+                    });
+                }
             });
         })
         
         .catch( err => {
+            console.log(err);
             res.json({
                 code: 500,
-                message: "user select error (course create)",
-                error: err
+                message: "user select error (course create)"
             });
         });
     }
@@ -64,7 +101,7 @@ exports.readCourse = (req, res, next) => {
     let token = jwt_util.getAccount(req.headers.authorization);
     let like, shops = [];
 
-    if( typeof token !== 'undefined')
+    if( typeof token != 'undefined')
     {
         
         User.findOne({
@@ -75,8 +112,9 @@ exports.readCourse = (req, res, next) => {
             let query = `
             SELECT 
                 courses.id, courses.user_id AS user_id, courses.user_nickname, courses.title,
-                courses.contents, courses.dday, courses.grade_avg, 
+                courses.contents, courses.dday, courses.grade_avg, courses.main_photo,
                 courses.course_info1, courses.course_info2, courses.course_info3, 
+                DATE_FORMAT(courses.created_at,'%Y-%m-%d') AS created_at,
                 course_likes.id AS liked,
                 infos.id AS info_id, infos.shopname AS shopname, infos.address AS address,
                 infos.grade_avg AS info_grade_avg, infos.latitude AS latitude, infos.longitude AS longitude
@@ -85,12 +123,15 @@ exports.readCourse = (req, res, next) => {
             ON ( courses.id = course_likes.course_id )
             LEFT OUTER JOIN (followme.infos)
             ON ( courses.course_info1 = infos.id OR courses.course_info2 = infos.id OR courses.course_info3 = infos.id )
-            WHERE ( courses.id = :course_id )`;
+            WHERE ( courses.id = :course_id AND course_likes.user_id = :user_id)`;
 
             return model.sequelize.query(
                 query, 
                 {
-                    replacements: {'course_id': course_id},
+                    replacements: {
+                        'course_id': course_id,
+                        'user_id': user.id
+                    },
                     type: QueryTypes.SELECT
                 }
             )
@@ -98,6 +139,7 @@ exports.readCourse = (req, res, next) => {
 
         .then( courses => {
 
+            console.log(courses);
             if( !courses[0].liked )
                 like = 0;
             else
@@ -112,6 +154,7 @@ exports.readCourse = (req, res, next) => {
                 json.grade_avg = courses[i].info_grade_avg;
                 json.latitude = courses[i].latitude;
                 json.longitude = courses[i].longitude;
+                json.main_photo = courses[i].main_photo;
                 shops.push(json);
             }
 
@@ -120,8 +163,10 @@ exports.readCourse = (req, res, next) => {
                 user_nickname: courses[0].user_nickname,
                 title: courses[0].title,
                 contents: courses[0].contents,
+                dday: courses[0].dday,
                 grade_avg: courses[0].grade_avg,
                 like: like,
+                created_at: courses[0].created_at,
                 shops: shops
             });
         });
@@ -142,13 +187,13 @@ exports.readCourseList = (req, res, next) => {
     let token = jwt_util.getAccount(req.headers.authorization);
     let courses = [], info_id_array = [], info_id_set = [], set_index = 0;
     
-    if( typeof token !== 'undefined')
+    if( typeof token != 'undefined')
     {
         let query = `
         SELECT 
-            courses.id, courses.user_id AS user_id, courses.title, courses.dday, courses.grade_avg, 
-            courses.course_info1, courses.shopname1, courses.course_info2, courses.shopname2, courses.course_info3, courses.shopname3, 
-            DATE_FORMAT(courses.created_at,'%Y-%m-%d') AS created_at, courses.share AS share
+            courses.id, courses.user_nickname, courses.title, courses.dday, courses.grade_avg, courses.main_photo,
+            courses.course_info1 AS shop_id1, courses.shopname1, courses.course_info2 AS shop_id2, courses.shopname2, courses.course_info3 AS shop_id3, courses.shopname3, 
+            DATE_FORMAT(courses.created_at,'%Y-%m-%d') AS created_at
         FROM courses
         WHERE (courses.share = 1)`;
 
@@ -182,14 +227,14 @@ exports.readMyCourse = (req, res, next) => {
     let token = jwt_util.getAccount(req.headers.authorization);
     let user_id = token.user_id;
 
-    if( typeof token !== 'undefined')
+    if( typeof token != 'undefined')
     {
         //공유 받은 코스와 내가 만든 코스들 모두 select
         let query = `
         SELECT 
-            courses.id, courses.user_id AS user_id, courses.title, courses.dday, courses.grade_avg, 
-            courses.course_info1, courses.shopname1, courses.course_info2, courses.shopname2, courses.course_info3, courses.shopname3, 
-            DATE_FORMAT(courses.created_at,'%Y-%m-%d') AS created_at, COUNT(course_shares.course_id) AS share, course_shares.shared_user_id AS shared_user_id 
+            courses.id, courses.title, courses.dday, courses.grade_avg, courses.main_photo,
+            courses.course_info1 AS shop_id1, courses.shopname1, courses.course_info2 AS shop_id2, courses.shopname2, courses.course_info3 AS shop_id3, courses.shopname3, 
+            DATE_FORMAT(courses.created_at,'%Y-%m-%d') AS created_at, COUNT(course_shares.course_id) AS share
         FROM followme.courses 
         LEFT OUTER JOIN (followme.course_shares)
         ON courses.id = course_shares.course_id 
@@ -227,41 +272,64 @@ exports.readMyCourse = (req, res, next) => {
 exports.updateCourse = (req, res, next) => {
     let course_id = req.body.id;
     let { category, title, dday, contents, shop_id1, shopname1, shop_id2, shopname2, shop_id3, shopname3} = req.body;
+    let file = req.file;
     let token = jwt_util.getAccount(req.headers.authorization);
 
-    if( typeof token !== 'undefined')
+    if( typeof token != 'undefined')
     {
 
         let user_id = token.user_id;
 
+        let newFilename = (file) ? (image_db_path + course_id + image_middle_path + file.originalname) : (image_db_path + default_image_name)
+
         // 수정할 권한이 있는지 확인 ( 내소유 or 공유 받은 코스 )
         let query = `
         SELECT 
-            courses.id, courses.user_id AS user_id, courses.title, courses.dday, courses.grade_avg, 
+            courses.id, courses.user_id AS user_id, courses.title, courses.dday, courses.grade_avg, courses.main_photo,
             courses.course_info1, courses.shopname1, courses.course_info2, courses.shopname2, courses.course_info3, courses.shopname3, 
             course_shares.course_id AS course_id, course_shares.shared_user_id AS shared_user_id 
         FROM followme.courses 
         LEFT OUTER JOIN (followme.course_shares)
         ON courses.id = course_shares.course_id 
-        WHERE (user_id = :user_id OR shared_user_id = :user_id ) 
+        WHERE courses.id = :course_id AND (user_id = :user_id OR shared_user_id = :user_id ) 
         GROUP BY courses.id`;
 
         model.sequelize.query(
             query, 
             {
-                replacements: {'user_id': user_id},
+                replacements: {
+                    'course_id': course_id,
+                    'user_id': user_id
+                },
                 type: QueryTypes.SELECT
             }
         )
 
         .then( course => {
+
             if( course )
             {
+                let oldFilename = course[0].main_photo;
+                console.log(env.pp+oldFilename);
+                if( (oldFilename != newFilename) && (oldFilename != (image_db_path + default_image_name)))
+                {
+                    fs.unlink( env.PP + oldFilename, function (err) {
+                        if(err)
+                        {
+                            res.json({
+                                message: "file delete error (course update)"
+                            });
+                            throw err; 
+                        }
+                    })
+                }
+            
                 Course.update({
                     category: category, 
                     title: title, 
                     dday: dday, 
-                    contents: contents, 
+                    contents: contents,
+                    main_photo: newFilename,
                     course_info1: shop_id1,
                     shopname1: shopname1,
                     course_info2: shop_id2, 
@@ -281,6 +349,7 @@ exports.updateCourse = (req, res, next) => {
                 })
 
                 .catch( err => {
+                    console.log(err);
                     res.json({
                         code: 500,
                         message: "course update error (course update)"
@@ -297,6 +366,7 @@ exports.updateCourse = (req, res, next) => {
         })
 
         .catch( err => {
+            console.log(err);
             res.json({
                 code: 500,
                 message: "course select error (course update)"
@@ -319,7 +389,7 @@ exports.updateShare = (req, res, next) => {
     let { share, course_id, shared_user_id} = req.body;
     let token = jwt_util.getAccount(req.headers.authorization);
 
-    if( typeof token !== 'undefined')
+    if( typeof token != 'undefined')
     {
         let user_id = token.user_id;
 
@@ -333,7 +403,7 @@ exports.updateShare = (req, res, next) => {
         LEFT OUTER JOIN (followme.course_shares)
         ON courses.id = course_shares.course_id 
         WHERE (user_id = :user_id OR shared_user_id = :user_id ) 
-        GROUP BY courses.id`;
+        `;
 
         model.sequelize.query(
             query, 
@@ -483,7 +553,7 @@ exports.deleteCourse = (req, res, next) => {
     let course_id = req.body.id;
     let token = jwt_util.getAccount(req.headers.authorization);
 
-    if( typeof token !== 'undefined')
+    if( typeof token != 'undefined')
     {
 
         User.findOne({
@@ -533,10 +603,10 @@ exports.deleteCourse = (req, res, next) => {
         })
 
         .catch( err => {
+            console.log(err);
             res.json({
                 code: 500,
-                message: "user select error (course delete)",
-                error: err
+                message: "user select error (course delete)"
             });
         });
     }
@@ -556,7 +626,7 @@ exports.likeCourse = (req, res, next) => {
     let course_id = req.body.id;
     let token = jwt_util.getAccount(req.headers.authorization);
 
-    if( typeof token !== 'undefined')
+    if( typeof token != 'undefined')
     {
         // 테스트로는 token의 user_id를 받아서 user를 따로 조회 안하도록 만듦 -> 나중에 수정 가능
         CourseLike.findOne({
@@ -663,6 +733,7 @@ exports.dislikeCourse = (req, res, next) => {
         })
         
         .catch( err => {
+            console.log(err);
             res.json({
                 code: 500,
                 message: "no data in db already (course cancle like)"
@@ -685,7 +756,7 @@ exports.readReviews = (req, res, next) => {
     let course_id = req.body.id;
     let token = jwt_util.getAccount(req.headers.authorization);
 
-    if( typeof token !== 'undefined')
+    if( typeof token != 'undefined')
     {
         CourseReview.findAll({
             // where : {
@@ -716,6 +787,7 @@ exports.readReviews = (req, res, next) => {
         })
         
         .catch( err => {
+            console.log(err);
             res.json({
                 code: 500,
                 message: "read error (course read reviews)"
@@ -738,7 +810,7 @@ exports.createReview = (req, res, next) => {
     let { course_id, grade, review } = req.body;
     let token = jwt_util.getAccount(req.headers.authorization);
 
-    if( typeof token !== 'undefined')
+    if( typeof token != 'undefined')
     {
         CourseReview.create({
                 course_id: course_id,
@@ -791,7 +863,7 @@ exports.updateReview = (req, res, next) => {
     let token = jwt_util.getAccount(req.headers.authorization);
     let before_grade;
 
-    if( typeof token !== 'undefined')
+    if( typeof token != 'undefined')
     {
         courseReview.findOne({
             where : { id: review_id }
@@ -834,6 +906,7 @@ exports.updateReview = (req, res, next) => {
         })
         
         .catch( err => {
+            console.log(err);
             res.json({
                 code: 500,
                 message: "update error (course update review)"
@@ -856,7 +929,7 @@ exports.deleteReview = (req, res, next) => {
     let course_id = req.body.id;
     let token = jwt_util.getAccount(req.headers.authorization);
 
-    if( typeof token !== 'undefined')
+    if( typeof token != 'undefined')
     {
         CourseReview.destroy({
             where : {
@@ -891,6 +964,7 @@ exports.deleteReview = (req, res, next) => {
         })
         
         .catch( err => {
+            console.log(err);
             res.json({
                 code: 500,
                 message: "delete error (course review delete)"
