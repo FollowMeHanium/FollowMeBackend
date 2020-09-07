@@ -120,10 +120,10 @@ exports.readCourse = (req, res, next) => {
                 infos.grade_avg AS info_grade_avg, infos.latitude AS latitude, infos.longitude AS longitude
             FROM followme.courses 
             LEFT OUTER JOIN (followme.course_likes)
-            ON ( courses.id = course_likes.course_id )
+            ON ( courses.id = course_likes.course_id AND course_likes.user_id = :user_id )
             LEFT OUTER JOIN (followme.infos)
             ON ( courses.course_info1 = infos.id OR courses.course_info2 = infos.id OR courses.course_info3 = infos.id )
-            WHERE ( courses.id = :course_id AND course_likes.user_id = :user_id)`;
+            WHERE ( courses.id = :course_id )`;
 
             return model.sequelize.query(
                 query, 
