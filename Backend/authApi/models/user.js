@@ -54,11 +54,6 @@ module.exports = (sequelize, DataTypes)=>(
             defaultValue : 1, 
         },
 
-        interest : {
-            type : DataTypes.JSON,
-            allowNull : true
-        },
-
         accessedAt : {
             type : DataTypes.DATE,
             allowNull : false,
