@@ -52,7 +52,9 @@ router.post('/login', function(req, res, next) {
               expiresIn : '1440m',
               issuer : 'comeOn',
           });
-  
+          
+        client.set(user.id,refreshToken);
+
           return res.status(200).json({
             code : 200,
             message : '토큰이 발급되었습니다.',
@@ -76,7 +78,7 @@ router.post('/login', function(req, res, next) {
 });
 
 router.post('/join',async function(req, res, next) {
-  var {email,nickname,password} = req.body;
+  var {email,nickname,password,phone_num,gender} = req.body;
   await User.findOne({where:{
     email:email
   }})
@@ -88,7 +90,9 @@ router.post('/join',async function(req, res, next) {
         email:email,
         nickname:nickname,
         password:hashpassword,
-        salt:salt
+        salt:salt,
+        phone_num:phone_num,
+        gender:gender
       })
       .then(result=>{
         res.json({
@@ -97,7 +101,6 @@ router.post('/join',async function(req, res, next) {
         });
       })
     }else{
-      //req.flash('joinError', '이미 가입된 이메일입니다.');
       return res.status(400).send("이미 가입된 메일입니다.");
     }
   });
