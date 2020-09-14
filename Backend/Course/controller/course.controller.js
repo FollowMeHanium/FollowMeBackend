@@ -139,7 +139,6 @@ exports.readCourse = (req, res, next) => {
 
         .then( courses => {
 
-            console.log(courses);
             if( !courses[0].liked )
                 like = 0;
             else
@@ -377,7 +376,7 @@ exports.updateCourse = (req, res, next) => {
             if( course )
             {
                 let oldFilename = course[0].main_photo;
-                console.log(env.pp+oldFilename);
+
                 if( (oldFilename != newFilename) && (oldFilename != (image_db_path + default_image_name)))
                 {
                     fs.unlink( env.PP + oldFilename, function (err) {
@@ -846,7 +845,7 @@ exports.readReviews = (req, res, next) => {
         .then( course_reviews => {
 
             let reviewnum = Object.keys(course_reviews).length;
-            console.log(course_reviews);
+
             return new Promise( resolve => {
                 let review_array = course_reviews;
                 let reviews = [];
@@ -855,7 +854,6 @@ exports.readReviews = (req, res, next) => {
                 {
                     if( i == review_array.length )
                     {
-                        console.log(reviews);
                         resolve(reviews);
                     }
                     json.id = review_array[i].id;
