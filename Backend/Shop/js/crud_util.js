@@ -9,11 +9,12 @@ exports.getShopData = (info) => {
         json.shopname = info.shopname;
         json.address = info.address;
         json.grade_avg = info.grade_avg;
+        json.main_photo = 'null';
 
         if(info.main_photo)
         {
             let photo_num = "photo" + info.main_photo;
-            json.photo = info[photo_num];
+            json.main_photo = info[photo_num];
         }
 
         resolve(json);
