@@ -4,7 +4,7 @@ const env = process.env
 const development ={
     "username": "root",
     "password": env.DB_PASSWORD,
-    "database": "comeon_db",
+    "database": "followme",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "operatorsAliases": false
