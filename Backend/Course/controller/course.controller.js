@@ -12,7 +12,7 @@ const default_image_name = env.DEFAULT_IMAGE_NAME;
 //COURSE CREATE
 exports.createCourse = (req, res, next) => {
 
-    let { category, title, contents, dday } = req.body;
+    let { category, title, dday } = req.body;
     let token = jwt_util.getAccount(req.headers.authorization);
     let file = req.file;
 
@@ -33,7 +33,6 @@ exports.createCourse = (req, res, next) => {
                 user_nickname: user.nickname,
                 category: category,
                 title: title,
-                contents: contents,
                 dday: dday
             })
             
@@ -112,7 +111,7 @@ exports.readCourse = (req, res, next) => {
             let query = `
             SELECT 
                 courses.id, courses.user_id AS user_id, courses.user_nickname, courses.title,
-                courses.contents, courses.dday, courses.grade_avg, courses.main_photo,
+                courses.dday, courses.grade_avg, courses.main_photo,
                 courses.course_info1, courses.course_info2, courses.course_info3, 
                 DATE_FORMAT(courses.created_at,'%Y-%m-%d') AS created_at,
                 course_likes.id AS liked,
@@ -120,10 +119,10 @@ exports.readCourse = (req, res, next) => {
                 infos.grade_avg AS info_grade_avg, infos.latitude AS latitude, infos.longitude AS longitude
             FROM followme.courses 
             LEFT OUTER JOIN (followme.course_likes)
-            ON ( courses.id = course_likes.course_id AND course_likes.user_id = :user_id )
+            ON ( courses.id = course_likes.course_id )
             LEFT OUTER JOIN (followme.infos)
             ON ( courses.course_info1 = infos.id OR courses.course_info2 = infos.id OR courses.course_info3 = infos.id )
-            WHERE ( courses.id = :course_id )`;
+            WHERE ( courses.id = :course_id AND course_likes.user_id = :user_id)`;
 
             return model.sequelize.query(
                 query, 
@@ -161,7 +160,6 @@ exports.readCourse = (req, res, next) => {
                 id: courses[0].id,
                 user_nickname: courses[0].user_nickname,
                 title: courses[0].title,
-                contents: courses[0].contents,
                 dday: courses[0].dday,
                 grade_avg: courses[0].grade_avg,
                 like: like,
@@ -337,7 +335,7 @@ exports.readMyCourse = (req, res, next) => {
 //COURSE UPDATE
 exports.updateCourse = (req, res, next) => {
     let course_id = req.body.id;
-    let { category, title, dday, contents, shop_id1, shopname1, shop_id2, shopname2, shop_id3, shopname3} = req.body;
+    let { category, title, dday, shop_id1, shopname1, shop_id2, shopname2, shop_id3, shopname3} = req.body;
     let file = req.file;
     let token = jwt_util.getAccount(req.headers.authorization);
 
@@ -394,7 +392,6 @@ exports.updateCourse = (req, res, next) => {
                     category: category, 
                     title: title, 
                     dday: dday, 
-                    contents: contents,
                     main_photo: newFilename,
                     course_info1: shop_id1,
                     shopname1: shopname1,
@@ -845,7 +842,6 @@ exports.readReviews = (req, res, next) => {
         .then( course_reviews => {
 
             let reviewnum = Object.keys(course_reviews).length;
-
             return new Promise( resolve => {
                 let review_array = course_reviews;
                 let reviews = [];
