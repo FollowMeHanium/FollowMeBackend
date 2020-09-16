@@ -17,7 +17,8 @@ exports.recommend_update = () => {
 
     let query = `
     SELECT 
-	infos.id, infos.shopname, infos.address, infos.grade_avg,
+    infos.id, infos.shopname, infos.address, infos.grade_avg, 
+    main_photo, photo1, photo2, photo3, photo4, photo5, photo6, photo7, photo8, photo9, photo19,
     COUNT(info_likes.id) AS likes
     FROM infos
     JOIN info_likes
@@ -40,13 +41,56 @@ exports.recommend_update = () => {
     )
 
     .then( infos =>{
+        let make_json = function (info) {
+            return new Promise ( resolve => {
+                let json = {};
+                json.id = info.id;
+                json.shopname = info.shopname;
+                json.address = info.address;
+                json.grade_avg = info.grade_avg;
+                json.main_photo = 'null';
+                if(info.main_photo)
+                {
+                    let key = 'photo' + info.main_photo;
+                    json.main_photo = info[key];
+                    resolve(json);
+                }
+                else 
+                {
+                    resolve(json);
+                }
+            });
+        }
+        
+        return new Promise( resolve => {
+            let new_infos = [];
+            let info_array = infos;
+            for(let i = 0; i <= info_array.length; i++)
+            {
+                if(i == info_array.length)
+                {
+                    resolve(new_infos);
+                }
+                make_json(info_array[i])
+                .then(json => {
+                    new_infos.push(new_infos);
+                });
+            }
+        })
+    })
+
+    .then( infos => {
+
         let json = {'shops': JSON.stringify(infos)};
         client.hmset('recommend',  json);
 
         query = `
         SELECT 
-        courses.id, courses.title, courses.contents, courses.grade_avg, courses.dday, courses.course_info1, courses.shopname1,
-        courses.course_info2, courses.shopname2, courses.course_info3, courses.shopname3, DATE_FORMAT(courses.created_at,'%Y-%m-%d') AS created_at,
+        courses.id, courses.title, courses.contents, courses.grade_avg, courses.dday, main_photo,
+        courses.course_info1, courses.shopname1,
+        courses.course_info2, courses.shopname2, 
+        courses.course_info3, courses.shopname3, 
+        DATE_FORMAT(courses.created_at,'%Y-%m-%d') AS created_at,
         COUNT(course_likes.id) AS likes
         FROM courses
         JOIN course_likes
@@ -69,6 +113,40 @@ exports.recommend_update = () => {
         )
 
         .then( courses =>{
+
+            return new Promise( resolve => {
+                let course_array = courses;
+                for(let i = 0; i <= course_array.length; i++)
+                {
+                    if( i == course_array.length )
+                    {
+                        resolve(course_array);
+                    }
+                    course_array[i].shops = [
+                        {
+                            shop_id: course_array[i].shop_id1,
+                            shopname: course_array[i].shopname1
+                        },
+                        {
+                            shop_id: course_array[i].shop_id2,
+                            shopname: course_array[i].shopname2
+                        },
+                        {
+                            shop_id: course_array[i].shop_id3,
+                            shopname: course_array[i].shopname3
+                        }
+                    ];
+                    delete course_array[i].shop_id1;
+                    delete course_array[i].shopname1;
+                    delete course_array[i].shop_id2;
+                    delete course_array[i].shopname2;
+                    delete course_array[i].shop_id3;
+                    delete course_array[i].shopname3;
+                }
+            })
+        })
+        
+        .then(courses => {
             let json = {'courses': JSON.stringify(courses) }
             client.hmset('recommend', json);
         });
