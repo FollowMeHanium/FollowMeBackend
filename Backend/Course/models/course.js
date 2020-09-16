@@ -27,11 +27,6 @@ module.exports = (sequelize, DataTypes) => {
             allowNULL: false
         },
 
-        contents: {
-            type: DataTypes.STRING(1000),
-            allowNULL: false
-        },
-
         main_photo: {
             type: DataTypes.STRING(100),
             defaultValue: process.env.IMAGE_DB_PATH + process.env.DEFAULT_IMAGE_NAME,
