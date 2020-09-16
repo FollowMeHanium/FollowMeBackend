@@ -20,16 +20,23 @@ import org.elasticsearch.client.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class SearchService {
     final private ElasticsearchConf elasticsearchConf;
-    public JsonNode SearchDoc(int from,String target) throws IOException {
+
+    @Transactional(readOnly = true)
+    public List<SearchResponseDto> SearchDoc(int from, String target) throws IOException {
+        List<SearchResponseDto> reList = new ArrayList<>();
         Map<String,Object> result = new HashMap<>();
 
         QueryString queryString = new QueryString(target);
@@ -54,13 +61,21 @@ public class SearchService {
         JsonNode document = mapper.readTree(responseBody);
         JsonNode document2;
         document2=document.get("hits").get("hits");
+        for(int i=0;i<document2.size();i++){
+            JsonNode mainPhoto = document2.get(i).get("_source").get("main_photo");
+            String photo = "photo"+mainPhoto.toString();
+            reList.add(new SearchResponseDto(document2.get(i).get("_source").get("category").asInt(),
+                    document2.get(i).get("_source").get("grade_avg").asInt(),
+                    document2.get(i).get("_source").get("menu").asText(),
+                    document2.get(i).get("_source").get("shopname").asText(),
+                    document2.get(i).get("_source").get("likenum").asInt(),
+                    document2.get(i).get("_source").get("address").asText(),
+                    photo,
+                    document2.get(i).get("_score").floatValue()));
+        }
 
-        elasticsearchConf.getRestClient().close();
-/*
-        search.setAddress(document2.get("_source").get("address").toString());
-        search.setCategory(document2.get("_source").get("catagory").toString());
-*/
-        return document2;
+
+        return reList.stream().collect(Collectors.toList());
     }
 
 
