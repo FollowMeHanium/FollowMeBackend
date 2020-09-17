@@ -64,7 +64,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         
         grade_avg: {
-            type: DataTypes.FLOAT,
+            type: DataTypes.DOUBLE,
             allowNULL: true,
             defaultValue: 0
         },
