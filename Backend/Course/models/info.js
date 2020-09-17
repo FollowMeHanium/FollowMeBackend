@@ -37,18 +37,18 @@ module.exports = (sequelize, DataTypes) => {
         },
     
         grade_avg: {
-            type: DataTypes.FLOAT,
+            type: DataTypes.DOUBLE,
             allowNULL: true,
             defaultValue: 0
         },
 
         latitude: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.DOUBLE,
             allowNULL: true
         },
         
         longitude: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.DOUBLE,
             allowNULL: true
         },
 
