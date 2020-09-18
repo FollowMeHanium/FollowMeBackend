@@ -9,8 +9,6 @@ import java.io.IOException;
 @SpringBootApplication
 public class SearchApplication {
     public static void main(String[] args) throws IOException {
-
-
         SpringApplication.run(SearchApplication.class, args);
     }
 

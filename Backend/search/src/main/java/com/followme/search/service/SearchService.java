@@ -19,6 +19,7 @@ import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,14 +65,26 @@ public class SearchService {
         for(int i=0;i<document2.size();i++){
             JsonNode mainPhoto = document2.get(i).get("_source").get("main_photo");
             String photo = "photo"+mainPhoto.toString();
-            reList.add(new SearchResponseDto(document2.get(i).get("_source").get("category").asInt(),
-                    document2.get(i).get("_source").get("grade_avg").asInt(),
-                    document2.get(i).get("_source").get("menu").asText(),
-                    document2.get(i).get("_source").get("shopname").asText(),
-                    document2.get(i).get("_source").get("likenum").asInt(),
-                    document2.get(i).get("_source").get("address").asText(),
-                    photo,
-                    document2.get(i).get("_score").floatValue()));
+            if(photo.equals("photonull")){
+                reList.add(new SearchResponseDto(document2.get(i).get("_source").get("category").asInt(),
+                        document2.get(i).get("_source").get("grade_avg").asInt(),
+                        document2.get(i).get("_source").get("menu").asText(),
+                        document2.get(i).get("_source").get("shopname").asText(),
+                        document2.get(i).get("_source").get("likenum").asInt(),
+                        document2.get(i).get("_source").get("address").asText(),
+                        "no photo",
+                        document2.get(i).get("_score").floatValue()));
+            }else{
+                reList.add(new SearchResponseDto(document2.get(i).get("_source").get("category").asInt(),
+                        document2.get(i).get("_source").get("grade_avg").asInt(),
+                        document2.get(i).get("_source").get("menu").asText(),
+                        document2.get(i).get("_source").get("shopname").asText(),
+                        document2.get(i).get("_source").get("likenum").asInt(),
+                        document2.get(i).get("_source").get("address").asText(),
+                        document2.get(i).get("_source").get(photo).asText(),
+                        document2.get(i).get("_score").floatValue()));
+            }
+
         }
 
 
