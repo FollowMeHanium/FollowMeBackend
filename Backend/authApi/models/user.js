@@ -61,15 +61,15 @@ module.exports = (sequelize, DataTypes)=>(
         },
 
         birthdayYear : {
-            type : DataTypes.INT,
+            type : DataTypes.INTEGER,
             allowNull : false,
         },
         birthdayMonth : {
-            type : DataTypes.INT,
+            type : DataTypes.INTEGER,
             allowNull : false,
         },
         birthdayDay : {
-            type : DataTypes.INT,
+            type : DataTypes.INTEGER,
             allowNull : false,
         }
     
