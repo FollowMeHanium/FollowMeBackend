@@ -58,6 +58,19 @@ module.exports = (sequelize, DataTypes)=>(
             type : DataTypes.DATE,
             allowNull : false,
             defaultValue : sequelize.literal('now()'),
+        },
+
+        birthdayYear : {
+            type : DataTypes.INT,
+            allowNull : false,
+        },
+        birthdayMonth : {
+            type : DataTypes.INT,
+            allowNull : false,
+        },
+        birthdayDay : {
+            type : DataTypes.INT,
+            allowNull : false,
         }
     
     },
