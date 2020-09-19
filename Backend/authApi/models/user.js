@@ -24,8 +24,7 @@ module.exports = (sequelize, DataTypes)=>(
 
         nickname : {
             type : DataTypes.STRING(40),
-            allowNull : false,
-            unique : true
+            allowNull : false
         },
 
         provider : {
