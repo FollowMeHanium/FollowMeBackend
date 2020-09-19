@@ -31,9 +31,9 @@ router.post('/login', function(req, res, next) {
           message:info.message
         });
       }
-      var now = new Date().getFullYear;
-      var age = now-user.birthdayYear;
-
+      var now = new Date();
+      var age = now.getFullYear()-user.birthdayYear;
+      console.log(now + " " + age);
       try{
         const token = jwt.sign({
           id : user.id,
@@ -83,6 +83,7 @@ router.post('/login', function(req, res, next) {
 
 router.post('/join',async function(req, res, next) {
   var {email,nickname,password,phone_num,gender,birthdayYear,birthdayMonth,birthdayDay} = req.body;
+  console.log(birthdayYear);
   await User.findOne({where:{
     email:email
   }})
@@ -97,7 +98,7 @@ router.post('/join',async function(req, res, next) {
         salt:salt,
         phone_num:phone_num,
         gender:gender,
-        birthdayDay:birthdayYear,
+        birthdayYear:birthdayYear,
         birthdayMonth:birthdayMonth,
         birthdayDay:birthdayDay
       })
