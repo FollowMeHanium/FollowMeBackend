@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNULL: false
         },
 
-        category: {
+        thema: {
             type: DataTypes.INTEGER,
             allowNULL: true
         },
@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(200),
             allowNULL: false
         },
-
+        
         main_photo: {
             type: DataTypes.STRING(100),
             defaultValue: process.env.IMAGE_DB_PATH + process.env.DEFAULT_IMAGE_NAME,
