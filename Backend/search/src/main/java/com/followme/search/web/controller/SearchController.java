@@ -6,26 +6,28 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.followme.search.service.SearchService;
 import com.followme.search.web.dto.SearchRequestDto;
 import com.followme.search.web.dto.SearchResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 @RequiredArgsConstructor
 @RestController
 @Component
 public class SearchController {
     private final SearchService searchService;
-
+    Logger log = LoggerFactory.getLogger(this.getClass());
     @Value("${secretKey}")
     String secret;
 
@@ -33,9 +35,9 @@ public class SearchController {
     public @ResponseBody List<SearchResponseDto> search(@RequestHeader(value = "token") String token,
                                                         @RequestBody SearchRequestDto searchRequestDto) throws IOException {
 
+        ObjectMapper mapper = new ObjectMapper();
         Algorithm a = Algorithm.HMAC256(secret);
-        String jwt = JWT.create().withClaim("name","gogo").withClaim("age","30").sign(a);
-        System.out.println(secret);
+        String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsIm5pY2tuYW1lIjoiYWFhYSIsImdlbmRlciI6MSwiYWdlIjoyNSwic3RhdHVzIjoxLCJpYXQiOjE2MDA1NDAwNjMsImV4cCI6MTYwMDU0MzY2MywiaXNzIjoiY29tZU9uIn0.yIJU1wV-pYt3XCcimadEOeNCFWMVJNLyYnX-dZZ6Voc";
         JWTVerifier verifier = JWT.require(a)
                 .build();
         try{
@@ -45,9 +47,9 @@ public class SearchController {
         }
 
         DecodedJWT decodedJWT = JWT.decode(jwt);
-        String ab = decodedJWT.getClaim("name").asString();
-        Claim age = decodedJWT.getClaim("age");
-
+        int gender = decodedJWT.getClaim("gender").asInt();
+        int age = decodedJWT.getClaim("age").asInt();
+        log.trace("gender-"+gender+" "+ "age-"+age);
 
         return searchService.SearchDoc(searchRequestDto.getFrom(),searchRequestDto.getQuery());
     }

@@ -24,11 +24,35 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
+
+class logs{
+    int age;
+    int gender;
+    SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+
+    logs(int age,int gender){
+        if(age<10){
+            this.age=0;
+        }else if(age>=10&&age<20){
+            this.age=10;
+        }else if(age>=20&&age<30){
+            this.age=20;
+        }else if(age>=30&&age<40){
+            this.age=30;
+        }else if(age>=40&&age<50){
+            this.age=40;
+        }else if(age>=50&&age<60){
+            this.age=50;
+        }else{
+            this.age=60;
+        }
+        this.gender=gender;
+    }
+}
 
 @Service
 @RequiredArgsConstructor
