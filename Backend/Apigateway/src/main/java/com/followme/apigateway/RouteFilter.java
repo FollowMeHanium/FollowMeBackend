@@ -24,7 +24,8 @@ public class RouteFilter extends ZuulFilter {
 
     @Override
     public Object run() {
-        log.debug("Route Filter");
+        log.info("Route Filter");
+
         return null;
     }
 }
