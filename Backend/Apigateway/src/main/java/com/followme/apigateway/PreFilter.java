@@ -91,7 +91,7 @@ public class PreFilter extends ZuulFilter {
     }
 
     private Validate validateToken(String tokenHeader) {
-        Algorithm a = Algorithm.HMAC256("aaa");
+        Algorithm a = Algorithm.HMAC256(secret);
         JWTVerifier verifier = JWT.require(a).build();
         final RequestContext ctx = RequestContext.getCurrentContext();
         try{
