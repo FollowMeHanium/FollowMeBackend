@@ -135,7 +135,7 @@ router.post('/checkNickname',function(req,res,next){
   })
 });
 
-router.post('/checkEamil',function(req,res,next){
+router.post('/checkEmail',function(req,res,next){
   var {email}=req.body;
 
   User.findOne({where:{
