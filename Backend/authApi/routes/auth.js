@@ -114,4 +114,46 @@ router.post('/join',async function(req, res, next) {
   });
 });
 
+router.post('/checkNickname',function(req,res,next){
+  var {nickname}=req.body;
+
+  User.findOne({where:{
+    nickname:nickname
+  }})
+  .then(result=>{
+    if(isEmpty(result)!=false){
+      res.json({
+        code:200,
+        message:"사용가능한 닉네임입니다."
+      })
+    }else{
+      res.json({
+        code:400,
+        message:"이미 사용중인 닉네임입니다."
+      })
+    }
+  })
+});
+
+router.post('/checkEamil',function(req,res,next){
+  var {email}=req.body;
+
+  User.findOne({where:{
+    email:email
+  }})
+  .then(result=>{
+    if(isEmpty(result)!=false){
+      res.json({
+        code:200,
+        message:"사용가능한 이메일입니다."
+      })
+    }else{
+      res.json({
+        code:400,
+        message:"이미 가입된 이메일입니다."
+      })
+    }
+  })
+});
+
 module.exports = router;
