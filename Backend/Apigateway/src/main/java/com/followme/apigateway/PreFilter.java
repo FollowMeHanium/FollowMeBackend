@@ -79,7 +79,7 @@ public class PreFilter extends ZuulFilter {
                 ctx.getResponse().setContentType("application/json;charset=UTF-8");
                 ctx.setResponseBody(Jsondata);
             }else {
-                message="토큰이 만되었습니다.";
+                message="토큰이 만료되었습니다.";
                 String Jsondata = gson.toJson(new ReturnMessage(401,message));
                 ctx.setResponseStatusCode(401);
                 ctx.getResponse().setContentType("application/json;charset=UTF-8");

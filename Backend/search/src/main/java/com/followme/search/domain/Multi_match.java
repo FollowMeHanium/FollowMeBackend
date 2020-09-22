@@ -11,13 +11,12 @@ import java.util.ArrayList;
 
 @Setter
 @Getter
-public class QueryString {
+public class Multi_match {
     private Object query;
     private String[] fields;
-    private Object exists;
 
-    public QueryString(String query){
-        this.query = query+" AND is_deleted:false";//삭제된 가게 정보를 제외한 검색
+    public Multi_match(String query){
+        this.query = query;
         this.fields= new String[]{"menu", "shopname", "introduce", "address"};
     }
 }

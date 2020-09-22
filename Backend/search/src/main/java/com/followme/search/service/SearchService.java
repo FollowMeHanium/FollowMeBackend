@@ -3,10 +3,7 @@ package com.followme.search.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.followme.search.config.ElasticsearchConf;
-import com.followme.search.domain.FullQuery;
-import com.followme.search.domain.Query;
-import com.followme.search.domain.QueryString;
-import com.followme.search.domain.Search;
+import com.followme.search.domain.*;
 import com.followme.search.web.dto.SearchResponseDto;
 import com.google.gson.Gson;
 import lombok.NoArgsConstructor;
@@ -28,13 +25,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-class logs{
+class Logs{
     int age;
     int gender;
-    SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String searched_at;
+    String word;
 
-
-    logs(int age,int gender){
+    Logs(int age,int gender,String word,String searched_at){
         if(age<10){
             this.age=0;
         }else if(age>=10&&age<20){
@@ -51,6 +48,8 @@ class logs{
             this.age=60;
         }
         this.gender=gender;
+        this.word=word;
+        this.searched_at=searched_at;
     }
 }
 
@@ -60,20 +59,32 @@ public class SearchService {
     final private ElasticsearchConf elasticsearchConf;
 
     @Transactional(readOnly = true)
-    public List<SearchResponseDto> SearchDoc(int from, String target) throws IOException {
+    public List<SearchResponseDto> SearchDoc(int from, String target,int gender,int age) throws IOException {
         List<SearchResponseDto> reList = new ArrayList<>();
-        Map<String,Object> result = new HashMap<>();
 
-        QueryString queryString = new QueryString(target);
-        FullQuery fullQuery= new FullQuery(from,5,queryString);
+        Multi_match multiMatch = new Multi_match(target);
+        Should should = new Should(multiMatch);
+        Term term = new Term();
+        Filter filter = new Filter(term);
+        BoolQuery bool = new BoolQuery(should,filter);
+        FullQuery fullQuery= new FullQuery(from,5,bool);
 
+        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        Date time = new Date();
         String JsonData;
+        String Logs;
 
         Gson gson = new Gson();
         JsonData = gson.toJson(fullQuery); //Object를 Json화
-
+        Logs = gson.toJson(new Logs(age,gender,target,format.format(time)));//log를 위한 json
         final HttpEntity httpEntity = new NStringEntity(JsonData, ContentType.APPLICATION_JSON);
+        final HttpEntity httpLogs = new NStringEntity(Logs,ContentType.APPLICATION_JSON);
 
+        Request requestLog = new Request("POST","/search_log_datas/_doc");//ES에 로그 저장
+        requestLog.addParameter("pretty","true");
+        requestLog.setEntity(httpLogs);
+        Response response1 = elasticsearchConf.getRestClient().performRequest(requestLog);
+        //String responseBody = EntityUtils.toString(response.getEntity());
 
         Request request = new Request("POST","/infos_table/_search");
         request.addParameter("pretty","true");

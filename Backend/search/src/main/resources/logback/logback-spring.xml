@@ -1,75 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration debug="true" scan="true">
-    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
-    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
 
-    <property name="LOG_DIR" value="/eCall/logs" />
-    <property name="SERVER_NAME" value="collection"/>
-    <property name="LOG_PATH_NAME" value="${LOG_DIR}/${SERVER_NAME}" />
-    <property name="FILE_NAME" value="collectionServer" />
+<!-- 30초마다 설정 파일의 변경을 확인한다. 파일이 변경되면 다시 로딩한다 -->
+<configuration scan="true" scanPeriod="30 seconds">
+    <!-- setting -->
+    <springProfile name="qa">
+        <property resource="logback-qa.properties"/>
+    </springProfile>
+    <springProfile name="dev">
+        <property resource="logback-dev.properties"/>
+    </springProfile>
+    <springProfile name="release">
+        <property resource="logback-release.properties"/>
+    </springProfile>
 
-    <!-- FILE Appender -->
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH_NAME}/${FILE_NAME}.log</file>
-        <!-- 일자별 로그파일 저장 -->
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH_NAME}/${FILE_NAME}_%d{yyyyMMdd}.log</fileNamePattern>
-            <!-- 일자별 로그파일 저장 기간 설정 -->
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5p] [%F]%M\(%L\) : %m%n</pattern>
+    <!-- log packagename -->
+    <property name="LOG_PACKAGE_NAME" value="${log.config.packagename}"/>
+    <!-- log file path -->
+    <property name="LOG_PATH" value="${log.config.path}"/>
+    <!-- log file name -->
+    <property name="LOG_FILE_NAME" value="${log.config.filename}"/>
+    <!-- log days -->
+    <property name="LOG_DAYS" value="${log.config.days}"/>
+    <!-- log filesize log -->
+    <property name="LOG_FILESIZE_LOG" value="${log.config.filesizelog}"/>
+    <!-- log filesize zip -->
+    <property name="LOG_FILESIZE_ZIP" value="${log.config.filesizezip}"/>
+    <!-- log filesize total -->
+    <property name="LOG_TOTAL_FILESIZE" value="${log.config.totalfilesize}"/>
+    <!-- log min count -->
+    <property name="LOG_FILE_MIN" value="${log.config.min}"/>
+    <!-- log max count -->
+    <property name="LOG_FILE_MAX" value="${log.config.max}"/>
+    <!-- pattern -->
+    <property name="LOG_PATTERN"
+              value="%-5level %d{yy-MM-dd HH:mm:ss} [%logger{0}:%line] - %msg%n"/>
+
+    <property name="LOG_PATTERN_LIVE"
+              value="%-5level %d{yy-MM-dd HH:mm:ss} [%method:%line] - %msg%n"/>
+
+    <!-- console log -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
         </encoder>
     </appender>
 
-    <appender name="AM_MSD_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH_NAME}/AM/${FILE_NAME}.log</file>
+    <appender name="FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${LOG_FILE_NAME}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH_NAME}/AM/${FILE_NAME}_%d{yyyyMMdd}.log</fileNamePattern>
-            <maxHistory>30</maxHistory>
+            <fileNamePattern>${LOG_PATH}/${LOG_FILE_NAME}.%d{yyyy-MM-dd}.log
+            </fileNamePattern>
         </rollingPolicy>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} : %m%n</pattern>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
         </encoder>
     </appender>
+    <if condition='property("log.config.mode").equals("RELEASE")'>
+        <then>
+            <logger name="${LOG_PACKAGE_NAME}" level="INFO"/>
 
-    <appender name="BM_MSD_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH_NAME}/BM/${FILE_NAME}.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH_NAME}/BM/${FILE_NAME}_%d{yyyyMMdd}.log</fileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} : %m%n</pattern>
-        </encoder>
-    </appender>
+            <logger name="org.springframework" additivity="false">
+                <level value="WARN"/>
+                <appender-ref ref="console"/>
+            </logger>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <!-- [2018-08-17] [15:24:21.355] [log level] [logName]      [class.java line]       [message] -->
-            <!--     날짜           시간       로그레벨    로거이름   로그인클래스.java 몇번째줄    로그메세지 -->
-            <pattern>[%d{yyyy-MM-dd}] [%d{HH:mm:ss.SSS}] [%p] [%c{1}] [%F:%L [%m]%n</pattern>
-        </layout>
-    </appender>
+            <root level="INFO">
+                <appender-ref ref="console"/>
+                <appender-ref ref="FILE"/>
+            </root>
+        </then>
+        <else>
+            <logger name="${LOG_PACKAGE_NAME}" level="INFO"/>
 
-    <!-- AM 수집 로그 파일 저장 -->
-    <logger name="kr.co.neighbor21.ecall.geon.collection.server.resource" additivity="FALSE">
-        <level value="INFO" />
-        <appender-ref ref="AM_MSD_FILE" />
-    </logger>
+            <logger name="jdbc.resultset" additivity="false">
+                <level value="INFO"/>
+                <appender-ref ref="console"/>
+            </logger>
 
-    <!-- BM 수집 로그 파일 저장 -->
-    <logger name="kr.co.neighbor21.ecall.geon.collection.server" additivity="FALSE">
-        <level value="INFO" />
-        <appender-ref ref="BM_MSD_FILE" />
-    </logger>
+            <logger name="org.springframework" additivity="false">
+                <level value="INFO"/>
+                <appender-ref ref="console"/>
+            </logger>
 
-    <!-- 모든 로그 출력 (파일/콘솔) -->
-    <root level="INFO">
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="STDOUT"/>
-    </root>
-
-
+            <root level="INFO">
+                <appender-ref ref="console"/>
+            </root>
+        </else>
+    </if>
 
 </configuration>

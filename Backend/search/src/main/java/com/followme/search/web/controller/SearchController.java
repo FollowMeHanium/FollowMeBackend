@@ -51,7 +51,7 @@ public class SearchController {
         int age = decodedJWT.getClaim("age").asInt();
         log.trace("gender-"+gender+" "+ "age-"+age);
 
-        return searchService.SearchDoc(searchRequestDto.getFrom(),searchRequestDto.getQuery());
+        return searchService.SearchDoc(searchRequestDto.getFrom(),searchRequestDto.getQuery(),gender,age);
     }
 
 
