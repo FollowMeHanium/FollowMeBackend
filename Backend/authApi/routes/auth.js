@@ -162,8 +162,8 @@ router.post('/checkEmail',function(req,res,next){
 });
 
 router.post('/getNewToken',function(req,res,next){
-  var {authoruzation,refreshToken}=req.header;
-  var tokenValue=jwt.decode(authoruzation);
+  var {authorization,refreshToken}=req.header;
+  var tokenValue=jwt.decode(authorization);
   var userId = tokenValue.body.user_id;
   client.get(userId,function(err,result){
     if(isEmpty(result)){
