@@ -162,7 +162,7 @@ router.post('/checkEmail',function(req,res,next){
 });
 
 router.post('/getNewToken',function(req,res,next){
-  var {authorization,refreshToken}=req.header;
+  var {authorization,refreshToken}=req.headers;
   var tokenValue=jwt.decode(authorization);
   console.log(tokenValue.body.gender);
   var userId = tokenValue.body.user_id;
