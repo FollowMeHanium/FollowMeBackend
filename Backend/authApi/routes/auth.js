@@ -163,7 +163,7 @@ router.post('/checkEmail',function(req,res,next){
 
 router.post('/getNewToken',function(req,res,next){
   var authorization=req.headers.authorization;
-  var refreshtoken = req.header.refreshtoken;
+  var refreshtoken = req.headers.refreshtoken;
   var tokenValue=jwt.decode(authorization);
   console.log(tokenValue);
   var userId = tokenValue.user_id;
@@ -176,7 +176,7 @@ router.post('/getNewToken',function(req,res,next){
         code:400,
         message:"토큰이 만료되었습니다. 재 로그인 해주세요."
       });
-    }else if(result==refreshToken){
+    }else if(result==refreshtoken){
       var expiresTime;
       if(tokenValue.status==0){
         expiresTime='60m';
