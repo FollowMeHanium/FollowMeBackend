@@ -167,6 +167,8 @@ router.post('/getNewToken',function(req,res,next){
   console.log(tokenValue);
   var userId = tokenValue.user_id;
   client.get(userId,function(err,result){
+    console.log(result);
+    console.log(refreshToken);
     if(isEmpty(result)){
       res.json({
         code:400,
