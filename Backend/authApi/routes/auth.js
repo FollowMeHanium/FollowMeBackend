@@ -165,12 +165,8 @@ router.post('/getNewToken',function(req,res,next){
   var authorization=req.headers.authorization;
   var refreshtoken = req.headers.refreshtoken;
   var tokenValue=jwt.decode(authorization);
-  console.log(tokenValue);
   var userId = tokenValue.user_id;
   client.get(userId,function(err,result){
-    console.log(result);
-    console.log(refreshtoken);
-    console.log(authorization);
     if(isEmpty(result)){
       res.json({
         code:400,
