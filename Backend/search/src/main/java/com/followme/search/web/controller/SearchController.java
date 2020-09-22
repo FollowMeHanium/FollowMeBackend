@@ -32,12 +32,12 @@ public class SearchController {
     String secret;
 
     @PostMapping("/search")
-    public @ResponseBody List<SearchResponseDto> search(@RequestHeader(value = "token") String token,
+    public @ResponseBody List<SearchResponseDto> search(@RequestHeader(value = "authorization") String token,
                                                         @RequestBody SearchRequestDto searchRequestDto) throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
         Algorithm a = Algorithm.HMAC256(secret);
-        String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsIm5pY2tuYW1lIjoiYWFhYSIsImdlbmRlciI6MSwiYWdlIjoyNSwic3RhdHVzIjoxLCJpYXQiOjE2MDA1NDAwNjMsImV4cCI6MTYwMDU0MzY2MywiaXNzIjoiY29tZU9uIn0.yIJU1wV-pYt3XCcimadEOeNCFWMVJNLyYnX-dZZ6Voc";
+        String jwt = token;
         JWTVerifier verifier = JWT.require(a)
                 .build();
         try{
