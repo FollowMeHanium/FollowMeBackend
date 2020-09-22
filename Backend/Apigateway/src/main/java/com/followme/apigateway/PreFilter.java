@@ -63,7 +63,7 @@ public class PreFilter extends ZuulFilter {
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
         HttpServletRequest request = ctx.getRequest();
-        String authorizationHeader = request.getHeader("token");
+        String authorizationHeader = request.getHeader("authorization");
         Validate check = validateToken(authorizationHeader);
         Gson gson = new Gson();
         String message;

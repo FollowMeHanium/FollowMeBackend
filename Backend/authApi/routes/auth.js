@@ -35,8 +35,14 @@ router.post('/login', function(req, res, next) {
       var age = now.getFullYear()-user.birthdayYear;
       console.log(now + " " + age);
       try{
+        var expiresTime;
+        if(user.status==0){
+          expiresTime='60m';
+        }else{
+          expiresTime='1440m'
+        }
         const token = jwt.sign({
-          id : user.id,
+          user_id : user.id,
           nickname : user.nickname,
           gender : user.gender,
           age : age,
@@ -44,7 +50,7 @@ router.post('/login', function(req, res, next) {
         },
         process.env.JWT_SECRET,
         {
-            expiresIn : '60m',
+            expiresIn : expiresTime,
             issuer : 'comeOn',
         });
         
@@ -57,8 +63,7 @@ router.post('/login', function(req, res, next) {
               issuer : 'comeOn',
           });
           
-        client.set(user.id,refreshToken);
-
+          client.set(user.id,refreshToken,'EX',86400);//redis에 refreshtoken 저장
           return res.status(200).json({
             code : 200,
             message : '토큰이 발급되었습니다.',
@@ -155,5 +160,50 @@ router.post('/checkEmail',function(req,res,next){
     }
   })
 });
+
+router.post('/getNewToken',function(req,res,next){
+  var {authoruzation,refreshToken}=req.header;
+  var tokenValue=jwt.decode(authoruzation);
+  var userId = tokenValue.body.user_id;
+  client.get(userId,function(err,result){
+    if(isEmpty(result)){
+      res.json({
+        code:400,
+        message:"토큰이 만료되었습니다. 재 로그인 해주세요."
+      });
+    }else if(result==refreshToken){
+      var expiresTime;
+      if(tokenValue.body.status==0){
+        expiresTime='60m';
+      }else{
+        expiresTime='1440m'
+      }
+      const token = jwt.sign({
+        user_id : tokenValue.body.user_id,
+        nickname : tokenValue.body.nickname,
+        gender : tokenValue.body.gender,
+        age : tokenValue.body.age,
+        status : tokenValue.body.status,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn : expiresTime,
+        issuer : 'comeOn',
+      });
+      
+      res.status(200).json({
+        code : 200,
+        message : '토큰이 발급되었습니다.',
+        token,
+      }).send();  
+    }else{
+      res.json({
+        code:500,
+        message:"토큰이 변조되었습니다. 재 로그인 해주세요."
+      });
+    }
+  })
+});
+
 
 module.exports = router;
