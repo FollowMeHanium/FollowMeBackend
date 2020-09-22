@@ -165,7 +165,7 @@ router.post('/getNewToken',function(req,res,next){
   var {authorization,refreshToken}=req.headers;
   var tokenValue=jwt.decode(authorization);
   console.log(tokenValue);
-  var userId = tokenValue.body.user_id;
+  var userId = tokenValue.user_id;
   client.get(userId,function(err,result){
     if(isEmpty(result)){
       res.json({
