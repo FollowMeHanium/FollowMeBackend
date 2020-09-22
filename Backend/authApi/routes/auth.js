@@ -55,7 +55,7 @@ router.post('/login', function(req, res, next) {
         });
         
         const refreshToken = jwt.sign({
-          id : user.id,
+          user_id : user.id,
           },
           process.env.JWT_SECRET,
           {
@@ -164,8 +164,8 @@ router.post('/checkEmail',function(req,res,next){
 router.post('/getNewToken',function(req,res,next){
   var {authorization,refreshToken}=req.headers;
   var tokenValue=jwt.decode(authorization);
-  console.log(tokenValue.body.gender);
-  var userId = tokenValue.body.user_id;
+  console.log(tokenValue);
+  var userId = tokenValue.user_id;
   client.get(userId,function(err,result){
     if(isEmpty(result)){
       res.json({
@@ -174,17 +174,17 @@ router.post('/getNewToken',function(req,res,next){
       });
     }else if(result==refreshToken){
       var expiresTime;
-      if(tokenValue.body.status==0){
+      if(tokenValue.status==0){
         expiresTime='60m';
       }else{
         expiresTime='1440m'
       }
       const token = jwt.sign({
-        user_id : tokenValue.body.user_id,
-        nickname : tokenValue.body.nickname,
-        gender : tokenValue.body.gender,
-        age : tokenValue.body.age,
-        status : tokenValue.body.status,
+        user_id : tokenValue.user_id,
+        nickname : tokenValue.nickname,
+        gender : tokenValue.gender,
+        age : tokenValue.age,
+        status : tokenValue.status,
       },
       process.env.JWT_SECRET,
       {
