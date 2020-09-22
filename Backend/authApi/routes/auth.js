@@ -54,7 +54,7 @@ router.post('/login', function(req, res, next) {
             issuer : 'comeOn',
         });
         
-        const refreshToken = jwt.sign({
+        const refreshtoken = jwt.sign({
           user_id : user.id,
           },
           process.env.JWT_SECRET,
@@ -63,12 +63,12 @@ router.post('/login', function(req, res, next) {
               issuer : 'comeOn',
           });
           
-          client.set(user.id,refreshToken,'EX',86400);//redis에 refreshtoken 저장
+          client.set(user.id,refreshtoken,'EX',86400);//redis에 refreshtoken 저장
           return res.status(200).json({
             code : 200,
             message : '토큰이 발급되었습니다.',
             token,
-            refreshToken,
+            refreshtoken,
           }).send();
       }
       catch(err){
@@ -162,13 +162,14 @@ router.post('/checkEmail',function(req,res,next){
 });
 
 router.post('/getNewToken',function(req,res,next){
-  var {authorization,refreshToken}=req.headers;
+  var authorization=req.headers.authorization;
+  var refreshtoken = req.header.refreshtoken;
   var tokenValue=jwt.decode(authorization);
   console.log(tokenValue);
   var userId = tokenValue.user_id;
   client.get(userId,function(err,result){
     console.log(result);
-    console.log(refreshToken);
+    console.log(refreshtoken);
     console.log(authorization);
     if(isEmpty(result)){
       res.json({
