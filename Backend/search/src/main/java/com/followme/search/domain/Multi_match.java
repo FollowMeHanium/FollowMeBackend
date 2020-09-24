@@ -17,6 +17,6 @@ public class Multi_match {
 
     public Multi_match(String query){
         this.query = query;
-        this.fields= new String[]{"menu", "shopname", "introduce", "address"};
+        this.fields= new String[]{"menu^2", "shopname", "introduce", "address^1.5"};
     }
 }
