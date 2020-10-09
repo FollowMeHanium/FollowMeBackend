@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNULL: true
         },
 
-        operatingTime: {
+        operating_time: {
             type: DataTypes.STRING(30),
             allowNULL: true
         },

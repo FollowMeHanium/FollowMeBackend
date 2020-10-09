@@ -12,7 +12,8 @@ const sequelize = new Sequelize ({
   database: config.database,
   username: config.username,
   password: config.password,
-  dialect:  config.dialect
+  dialect:  config.dialect,
+  logging: false
 });
 
 db.sequelize = sequelize;

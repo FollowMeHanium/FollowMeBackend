@@ -142,11 +142,10 @@ exports.readShop = (req, res, next) => {
 
         .then( info => {
 
-            if( !info.info_like )
+            if( info.info_likes.length == 0 )
                 like = 0;
             else
                 like = 1;
-            
             res.json({
                 id: info.id,
                 category: info.category,
@@ -562,24 +561,22 @@ exports.likeShop = (req, res, next) => {
 exports.dislikeShop = (req, res, next) => {
     let info_id = req.body.id;
     let token = jwt_util.getAccount(req.headers.authorization);
-
     if( typeof token != 'undefined')
     {
         let info_json = {};
-        let info_array = info_id.split(',');
-    
+//	let isArray = info_id.indexOf(',');
+//	let info_array = (isArray == -1) ? info_id : { [Op.or] : info_id};
+        let info_array = (typeof info_id == 'number') ? info_id : { [Op.or] : info_id};
+	console.log(typeof info_id, info_id);
         // 테스트로는 token의 user_id를 받아서 user를 따로 조회 안하도록 만듦 -> 나중에 수정 가능
         InfoLike.findAll({
             where : {
                 user_id: token.user_id,
-                info_id: {
-                    [Op.or] : info_array
-                }
+                info_id: info_array
             }
         })
 
         .then( infolike => {
-
             if( !infolike )
             {
                 return new Promise( (resolve, reject) => {
@@ -600,7 +597,7 @@ exports.dislikeShop = (req, res, next) => {
         .then( infolike => {
             return Info.decrement(
                 { likenum: 1 },
-                { where : { id: { [Op.or] : info_array } } }
+                { where : { id: info_array } }
             );
         })
 
@@ -621,7 +618,7 @@ exports.dislikeShop = (req, res, next) => {
     }
     else
     {
-
+	console.log('token error');
         res.json({
             code: 400,
             message: "Can't read token (shop cancle like)"
@@ -632,31 +629,30 @@ exports.dislikeShop = (req, res, next) => {
 
 //Shop Info Read - Like List
 exports.readLikeList = (req, res, next) => {
-    let info_id = req.query.id;
     let token = jwt_util.getAccount(req.headers.authorization);
 
     if( typeof token != 'undefined')
     {
+	let query = `SELECT 
+	infos.id, infos.shopname, infos.address, infos.grade_avg, infos.main_photo,
+	photo1, photo2, photo3, photo4, photo5, photo6, photo7, photo8, photo9, photo10,
+	info_likes.id AS likes
+	FROM infos
+	INNER JOIN info_likes
+	ON ( info_likes.info_id = infos.id )
+	WHERE ( info_likes.user_id = :user_id AND infos.deleted_at IS NULL)`;
 
-        Info.findAll({
-            attributes: { 
-                exclude : ['createdAt', 'updatedAt', 'deletedAt'] 
-            },
-            include: [
-                {
-                    attribute:  {
-
-                    },
-                    model: InfoLike,
-                    required: true,
-                    where: {user_id: token.user_id}
-                }
-            ],
-            where: {id: info_id}
-        })
+	model.sequelize.query(
+            query,
+            {
+                replacements: {
+                    'user_id': token.user_id
+                },
+                type: QueryTypes.SELECT
+            }
+        )
 
         .then( infos => {
-            console.log(infos);
             let shopnum = Object.keys(infos).length;
             let getShopJson = async function (infos) {
                 let shops = [];
@@ -674,6 +670,14 @@ exports.readLikeList = (req, res, next) => {
 
             let shops = getShopJson(infos);
         })
+	
+	.catch( err => {
+		console.log(err);
+		res.json({
+			code: 500,
+			message: 'read query error (read like list)'
+		})
+	})
         
     }
     else
@@ -690,17 +694,16 @@ exports.readLikeList = (req, res, next) => {
 exports.readReviews = (req, res, next) => {
     let shop_id = req.query.id;
     let token = jwt_util.getAccount(req.headers.authorization);
-
+console.log(shop_id);
     if( typeof token != 'undefined')
     {
         let query = `
         SELECT 
-            info_reviews.id, info_reviews.grade, info_reviews.contents,
-            users.nickname
+            info_reviews.id, info_reviews.grade, info_reviews.contents AS review, users.nickname
         FROM info_reviews
         LEFT OUTER JOIN (users)
-        ON (info_reviews.user_id = users.id)
-        WHERE (info_reviews.info_id = :info_id)
+	ON ( info_reviews.user_id = users.id )
+        WHERE ( info_reviews.info_id = :info_id AND info_reviews.deleted_at IS NULL)
         `
         model.sequelize.query(
             query,
@@ -713,31 +716,10 @@ exports.readReviews = (req, res, next) => {
         )
 
         .then( info_reviews => {
-
-            let reviewnum = Object.keys(info_reviews).length;
-            return new Promise( resolve => {
-                let review_array = info_reviews;
-                let reviews = [];
-                for(let i = 0; i <= review_array.length; i++)
-                {
-                    if( i == review_array.length )
-                    {
-                        resolve(reviews);
-                    }
-                    let json = {};
-                    json.id = review_array[i].id;
-                    json.grade = review_array[i].grade;
-                    json.nickname = review_array[i].nickname;
-                    json.review = review_array[i].contents;
-                    reviews.push(json);
-                }
-            })
-            .then( reviews => {
                 res.json({
-                    reviewnum: reviewnum,
-                    reveiws : reviews
+                    reviewnum: Object.keys(info_reviews).length,
+                    reviews : info_reviews
                 })
-            })
         })
         
         .catch( err => {
@@ -779,7 +761,7 @@ exports.createReview = (req, res, next) => {
                     grade_avg: Sequelize.literal('((grade_avg * reviewnum) + ' + grade + ') / (reviewnum + 1)' ),
                     reviewnum: Sequelize.literal('reviewnum + 1')
                 },
-                { where : { id: info_id } }
+                { where : { id: shop_id } }
             );
         })
 
