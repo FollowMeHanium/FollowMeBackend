@@ -10,10 +10,11 @@ exports.createCourse = (req, res, next) => {
 
     let { thema, title, dday, shops } = req.body;
     let token = jwt_util.getAccount(req.headers.authorization);     
-    let course_json = {}, bf= JSON.parse(shops);
-
+    let course_json = {}, bf = shops;
+	console.log(thema, title, dday, shops);
     if(!thema) 
         thema = 1;
+
     if( typeof token != 'undefined')
     {
         User.findOne({
@@ -31,14 +32,18 @@ exports.createCourse = (req, res, next) => {
                 main_photo: image_db_path + thema + '.jpg'
             }
 
-            for(let i = 0; i < bf.length; i++ )
-            {
-                let key1 = "course_info" + (i+1);
-                let key2 = "shopname" + (i+1);
-                course_json[key1] = bf[i].id;
-                course_json[key2] = bf[i].shopname;
-            }
+	    if(typeof bf != "undefined")
+	    {
+                for(let i = 0; i < bf.length; i++ )
+                {
+                    let key1 = "course_info" + (i+1);
+                    let key2 = "shopname" + (i+1);
+                    course_json[key1] = bf[i].id;
+                    course_json[key2] = bf[i].shopname;
+                }
+    	    }
 
+	console.log(course_json);
             Course.create(course_json)
             
             .then( course => {
@@ -47,6 +52,14 @@ exports.createCourse = (req, res, next) => {
                     message: "Create Success (course create)"
                 });
             })
+
+	    .catch( err => {
+		console.log(err);
+		res.json({
+			code: 500,
+			message: "create Error ( course create)"
+		})
+	    })
         })
         
         .catch( err => {
@@ -93,10 +106,10 @@ exports.readCourse = (req, res, next) => {
                 infos.grade_avg AS info_grade_avg, infos.latitude AS latitude, infos.longitude AS longitude
             FROM followme.courses 
             LEFT OUTER JOIN (followme.course_likes)
-            ON ( courses.id = course_likes.course_id )
+            ON ( courses.id = course_likes.course_id AND course_likes.user_id = :user_id )
             LEFT OUTER JOIN (followme.infos)
             ON ( courses.course_info1 = infos.id OR courses.course_info2 = infos.id OR courses.course_info3 = infos.id )
-            WHERE ( courses.id = :course_id AND course_likes.user_id = :user_id)`;
+            WHERE ( courses.id = :course_id AND courses.deleted_at IS NULL )`;
 
             return model.sequelize.query(
                 query, 
@@ -141,6 +154,7 @@ exports.readCourse = (req, res, next) => {
                     grade_avg: courses[0].grade_avg,
                     like: like,
                     created_at: courses[0].created_at,
+		    owner: token.user_id == courses[0].user_id,
                     shops: shops
                 });
             }
@@ -166,17 +180,14 @@ exports.readCourse = (req, res, next) => {
 
 //COURSE READ - LIST
 exports.readCourseList = (req, res, next) => {
-    let token = jwt_util.getAccount(req.headers.authorization);
     
-    if( typeof token != 'undefined')
-    {
         let query = `
         SELECT 
             courses.id, courses.thema, courses.user_nickname, courses.title, courses.dday, courses.grade_avg, courses.main_photo,
             courses.course_info1 AS shop_id1, courses.shopname1, courses.course_info2 AS shop_id2, courses.shopname2, courses.course_info3 AS shop_id3, courses.shopname3, 
             DATE_FORMAT(courses.created_at,'%Y-%m-%d') AS created_at
         FROM courses
-        WHERE (courses.share = 1)`;
+        WHERE (courses.share = 1 AND courses.deleted_at IS NULL )`;
 
         model.sequelize.query(
             query, 
@@ -225,16 +236,6 @@ exports.readCourseList = (req, res, next) => {
             });
         })
         
-    }
-    else
-    {
-
-        res.json({
-            code: 400,
-            message: "JWT Token Error (course read list)"
-        });
-
-    }
 };
 
 //MY COURSE READ - LIST
@@ -249,12 +250,9 @@ exports.readMyCourse = (req, res, next) => {
         SELECT 
             courses.id, courses.thema, courses.title, courses.dday, courses.grade_avg, courses.main_photo,
             courses.course_info1 AS shop_id1, courses.shopname1, courses.course_info2 AS shop_id2, courses.shopname2, courses.course_info3 AS shop_id3, courses.shopname3, 
-            DATE_FORMAT(courses.created_at,'%Y-%m-%d') AS created_at, COUNT(course_shares.course_id) AS share
+            DATE_FORMAT(courses.created_at,'%Y-%m-%d') AS created_at
         FROM followme.courses 
-        LEFT OUTER JOIN (followme.course_shares)
-        ON courses.id = course_shares.course_id 
-        WHERE (user_id = :user_id OR shared_user_id = :user_id ) 
-        GROUP BY courses.id`;
+        WHERE (user_id = :user_id AND courses.deleted_at IS NULL )`;
 
         model.sequelize.query(
             query, 
@@ -303,6 +301,14 @@ exports.readMyCourse = (req, res, next) => {
                 courses: courses
             });
         })
+
+	.catch( err => {
+	    console.log(err);
+	    res.json({
+		code: 500,
+		message: "Read error ( course my list )"
+	    })
+	})
         
     }
     else
@@ -376,7 +382,7 @@ exports.updateCourse = (req, res, next) => {
                 )
 
                 .then( updated_course => {
-                    res.send({
+                    res.json({
                         code: 200,
                         message: "course update success (course update)"
                     });
@@ -590,21 +596,33 @@ exports.deleteCourse = (req, res, next) => {
     if( typeof token != 'undefined')
     {
 
-        User.findOne({
-            indluce: {
-                model: Course,
-                where: { id: course_id }
-            },
-            where: { id: token.user_id }
-        })
+	let query = `SELECT 
+	users.id AS user_id, users.status, courses.id AS course_id
+	FROM users
+	LEFT OUTER JOIN courses
+	ON( users.id = courses.user_id AND courses.id = :course_id )
+	WHERE( users.id = :user_id )`;
+	
+
+	model.sequelize.query(
+            query,
+            {
+                replacements: {
+		    'user_id': token.user_id,
+                    'course_id': course_id
+                },
+                type: QueryTypes.SELECT
+            }
+        )
         
         .then( user => {
-
+		console.log(user);
             // 유저가 관리자인지 확인 ( 0 = 관리자, 1 = 유저 )
-            if( user.status == 0 )
+	    data = user[0];
+            if( data )
             {
 
-                if( user.course )
+                if( data.course_id || data.status == 0 )
                 {
                     Course.destroy({
                         where: { id: course_id}
@@ -615,25 +633,26 @@ exports.deleteCourse = (req, res, next) => {
                             code: 200,
                             message: "Delete Success"
                         });
-                    });
-                }
-                else 
-                {
-                    res.json({
-                        code: 500,
-                        message: "delete error : no data in db(course delete)"
-                    });
-                }
-            }
-            else
-            {
+                    })
 
-                res.json({
-                    code: 403,
-                    message: "No Permission (course delete) "
-                });
-
-            }
+		    .catch( err => {
+			console.log(err);
+			res.json({
+			    code: 500,
+			    message: "Delete Error (course delete)"
+			})
+		    });
+                }
+            	else
+            	{
+			console.log("delete request of No Permission" + token.user_id + " -> " + course_id);
+	
+        	        res.json({
+                	    code: 403,
+	                    message: "No Permission (course delete) "
+        	        });
+        	}
+	    }
         })
 
         .catch( err => {
@@ -799,7 +818,7 @@ exports.readReviews = (req, res, next) => {
         FROM course_reviews
         LEFT OUTER JOIN (users)
         ON (course_reviews.user_id = users.id)
-        WHERE (course_reviews.course_id = :course_id)
+        WHERE (course_reviews.course_id = :course_id AND course_reviews.deleted_at IS NULL)
         `
         model.sequelize.query(
             query,
