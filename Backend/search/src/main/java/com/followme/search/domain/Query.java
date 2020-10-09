@@ -1,8 +1,8 @@
 package com.followme.search.domain;
 
 public class Query {
-    Object query_string;
-    Query(Object query_string){
-        this.query_string=query_string;
+    Object bool;
+    public Query(Object multi_match){
+        this.bool=multi_match;
     }
 }

@@ -24,8 +24,7 @@ module.exports = (sequelize, DataTypes)=>(
 
         nickname : {
             type : DataTypes.STRING(40),
-            allowNull : false,
-            unique : true
+            allowNull : false
         },
 
         provider : {
@@ -58,6 +57,19 @@ module.exports = (sequelize, DataTypes)=>(
             type : DataTypes.DATE,
             allowNull : false,
             defaultValue : sequelize.literal('now()'),
+        },
+
+        birthdayYear : {
+            type : DataTypes.INTEGER,
+            allowNull : false,
+        },
+        birthdayMonth : {
+            type : DataTypes.INTEGER,
+            allowNull : false,
+        },
+        birthdayDay : {
+            type : DataTypes.INTEGER,
+            allowNull : false,
         }
     
     },
