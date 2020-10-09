@@ -18,7 +18,8 @@ router.get('/', function(req, res, next) {
         if(obj)
         {
           res.json({
-            shops: JSON.parse(obj.shops),
+	    hot: JSON.parse(obj.hot),
+	    food: JSON.parse(obj.food),  
             courses: JSON.parse(obj.courses)
           });
         }
