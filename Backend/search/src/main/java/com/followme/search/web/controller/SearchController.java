@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.followme.search.service.SearchService;
 import com.followme.search.web.dto.SearchRequestDto;
 import com.followme.search.web.dto.SearchResponseDto;
+import com.sun.istack.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,26 +34,26 @@ public class SearchController {
 
     @PostMapping("/search")
     public @ResponseBody List<SearchResponseDto> search(@RequestHeader(value = "authorization") String token,
-                                                        @RequestBody SearchRequestDto searchRequestDto) throws IOException {
-
+                                                        @NotNull @RequestBody SearchRequestDto searchRequestDto) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         Algorithm a = Algorithm.HMAC256(secret);
         String jwt = token;
         JWTVerifier verifier = JWT.require(a)
                 .build();
-        try{
-            DecodedJWT decodedJWT = verifier.verify(jwt);
-        }catch (JWTVerificationException exception){
+        if(!jwt.isEmpty()){
+            try{
+                DecodedJWT decodedJWT = verifier.verify(jwt);
+            }catch (JWTVerificationException exception){
 
+            }
+            DecodedJWT decodedJWT = JWT.decode(jwt);
+            int gender = decodedJWT.getClaim("gender").asInt();
+            int age = decodedJWT.getClaim("age").asInt();
+            log.trace("gender-"+gender+" "+ "age-"+age);
+
+            return searchService.SearchDoc(searchRequestDto,gender,age);
+        }else{
+            return searchService.SearchDoc(searchRequestDto,-1,-1);
         }
-
-        DecodedJWT decodedJWT = JWT.decode(jwt);
-        int gender = decodedJWT.getClaim("gender").asInt();
-        int age = decodedJWT.getClaim("age").asInt();
-        log.trace("gender-"+gender+" "+ "age-"+age);
-
-        return searchService.SearchDoc(searchRequestDto.getFrom(),searchRequestDto.getQuery(),gender,age);
     }
-
-
 }

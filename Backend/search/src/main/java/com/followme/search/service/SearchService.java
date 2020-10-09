@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.followme.search.config.ElasticsearchConf;
 import com.followme.search.domain.*;
+import com.followme.search.web.dto.SearchRequestDto;
 import com.followme.search.web.dto.SearchResponseDto;
 import com.google.gson.Gson;
 import lombok.NoArgsConstructor;
@@ -58,16 +59,21 @@ class Logs{
 public class SearchService {
     final private ElasticsearchConf elasticsearchConf;
 
+
+    //Tear사이에는 POJO만 주고 받도록 리팩토링
     @Transactional(readOnly = true)
-    public List<SearchResponseDto> SearchDoc(int from, String target,int gender,int age) throws IOException {
+    public List<SearchResponseDto> SearchDoc(SearchRequestDto searchRequestDto,int gender,int age) throws IOException {
         List<SearchResponseDto> reList = new ArrayList<>();
+
+        int from=searchRequestDto.getFrom();
+        String target=searchRequestDto.getQuery();
 
         Multi_match multiMatch = new Multi_match(target);
         Should should = new Should(multiMatch);
         Term term = new Term();
         Filter filter = new Filter(term);
         BoolQuery bool = new BoolQuery(should,filter);
-        FullQuery fullQuery= new FullQuery(from,5,bool);
+        FullQuery fullQuery= new FullQuery(from,20,bool);
 
         SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         Date time = new Date();
@@ -80,11 +86,14 @@ public class SearchService {
         final HttpEntity httpEntity = new NStringEntity(JsonData, ContentType.APPLICATION_JSON);
         final HttpEntity httpLogs = new NStringEntity(Logs,ContentType.APPLICATION_JSON);
 
-        Request requestLog = new Request("POST","/search_log_datas/_doc");//ES에 로그 저장
-        requestLog.addParameter("pretty","true");
-        requestLog.setEntity(httpLogs);
-        Response response1 = elasticsearchConf.getRestClient().performRequest(requestLog);
+
         //String responseBody = EntityUtils.toString(response.getEntity());
+        if(!(age==-1)&&!(gender==-1)){
+            Request requestLog = new Request("POST","/search_log_datas/_doc");//ES에 로그 저장
+            requestLog.addParameter("pretty","true");
+            requestLog.setEntity(httpLogs);
+            Response response1 = elasticsearchConf.getRestClient().performRequest(requestLog);
+        }
 
         Request request = new Request("POST","/infos_table/_search");
         request.addParameter("pretty","true");
@@ -97,32 +106,36 @@ public class SearchService {
         JsonNode document = mapper.readTree(responseBody);
         JsonNode document2;
         document2=document.get("hits").get("hits");
+
         for(int i=0;i<document2.size();i++){
             JsonNode mainPhoto = document2.get(i).get("_source").get("main_photo");
             String photo = "photo"+mainPhoto.toString();
             if(photo.equals("photonull")){
-                reList.add(new SearchResponseDto(document2.get(i).get("_source").get("category").asInt(),
-                        document2.get(i).get("_source").get("grade_avg").asInt(),
-                        document2.get(i).get("_source").get("menu").asText(),
-                        document2.get(i).get("_source").get("shopname").asText(),
-                        document2.get(i).get("_source").get("likenum").asInt(),
-                        document2.get(i).get("_source").get("address").asText(),
-                        "no photo",
-                        document2.get(i).get("_score").floatValue()));
+                reList.add(SearchResponseDto.builder()
+                        .id(document2.get(i).get("_id").asInt())
+                        .score(document2.get(i).get("_score").floatValue())
+                        .shopname(document2.get(i).get("_source").get("shopname").asText())
+                        .address(document2.get(i).get("_source").get("address").asText())
+                        .category(document2.get(i).get("_source").get("category").asInt())
+                        .grade_avg(document2.get(i).get("_source").get("grade_avg").floatValue())
+                        .menu(document2.get(i).get("_source").get("menu").asText())
+                        .likenum(document2.get(i).get("_source").get("likenum").asInt())
+                        .photo("No Photo")
+                        .build());
             }else{
-                reList.add(new SearchResponseDto(document2.get(i).get("_source").get("category").asInt(),
-                        document2.get(i).get("_source").get("grade_avg").asInt(),
-                        document2.get(i).get("_source").get("menu").asText(),
-                        document2.get(i).get("_source").get("shopname").asText(),
-                        document2.get(i).get("_source").get("likenum").asInt(),
-                        document2.get(i).get("_source").get("address").asText(),
-                        document2.get(i).get("_source").get(photo).asText(),
-                        document2.get(i).get("_score").floatValue()));
+                reList.add(SearchResponseDto.builder()
+                        .id(document2.get(i).get("_id").asInt())
+                        .score(document2.get(i).get("_score").floatValue())
+                        .shopname(document2.get(i).get("_source").get("shopname").asText())
+                        .address(document2.get(i).get("_source").get("address").asText())
+                        .category(document2.get(i).get("_source").get("category").asInt())
+                        .grade_avg(document2.get(i).get("_source").get("grade_avg").floatValue())
+                        .menu(document2.get(i).get("_source").get("menu").asText())
+                        .likenum(document2.get(i).get("_source").get("likenum").asInt())
+                        .photo(document2.get(i).get("_source").get(photo).asText())
+                        .build());//builder 패턴
             }
-
         }
-
-
         return reList.stream().collect(Collectors.toList());
     }
 
