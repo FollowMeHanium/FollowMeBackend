@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <form action="/auth/login" method="POST">
+      <p>
+        <strong>아이디</strong>
+        <input type="text" name="email" value="email">
+      </p>
+      <p>
+        <strong>비밀번호</strong>
+        <input type="password" name="password" value="password">
+      </p>
+      <p>
+        <strong>Nickname</strong>
+        <input type="text" name="nickname" value="password">
+      </p>
+      <p>
+        <input type="submit" value="제출">
+      </p>
+    </form>
+  </body>
+</html>

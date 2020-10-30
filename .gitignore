@@ -1,0 +1,5 @@
+.env
+application.properties
+node_modules/
+
+.DS_Store
